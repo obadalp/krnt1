@@ -1,0 +1,74 @@
+{
+  "week": {
+    "year": 2025,
+    "number": 17,
+    "label": "21.–25. dubna 2025"
+  },
+  "updatedAt": "2025-04-21T08:00:00Z",
+  "soupIncluded": true,
+  "vegetarianAlternative": "Halloumi sto gril nebo Salát gyros se sýrem Halloumi místo masa",
+  "days": [
+    {
+      "weekday": 1,
+      "name": "Pondělí",
+      "dish": "Halloumi sto gril",
+      "description": "Grilovaný sýr Halloumi, naše hranolky a salátek.",
+      "price": 179,
+      "vegetarian": true
+    },
+    {
+      "weekday": 2,
+      "name": "Úterý",
+      "dish": "Mousaka",
+      "description": "Lilek, mleté maso, brambory zapečené bešamelem, salátek.",
+      "price": 179,
+      "vegetarian": false
+    },
+    {
+      "weekday": 3,
+      "name": "Středa",
+      "dish": "Bujurdi",
+      "description": "Zapečený sýr Feta s rajčaty a paprikou, hranolky, salátek.",
+      "price": 179,
+      "vegetarian": true
+    },
+    {
+      "weekday": 4,
+      "name": "Čtvrtek",
+      "dish": "Tygania mix",
+      "description": "Kuřecí a vepřové kousky s cibulí, paprikou a česnekem na pánvi, pita nebo naše hranolky, salátek.",
+      "price": 179,
+      "vegetarian": false
+    },
+    {
+      "weekday": 5,
+      "name": "Pátek",
+      "dish": "Gyros burger",
+      "description": "Gyros se zeleninou, tzatziki a karamelizovanou cibulkou v burger housce, hranolky a salátek.",
+      "price": 179,
+      "vegetarian": false
+    }
+  ],
+  "fixedItems": [
+    {
+      "name": "Gyros kotopulo",
+      "description": "Kuřecí gyros, naše hranolky, cibule, pita a rajče.",
+      "price": 179
+    },
+    {
+      "name": "Gyros chirinos",
+      "description": "Vepřový gyros, naše hranolky, cibule, pita a rajče.",
+      "price": 179
+    },
+    {
+      "name": "Kalamary",
+      "description": "Smažené kroužky kalamarů v těstíčku, naše hranolky a salátek.",
+      "price": 179
+    },
+    {
+      "name": "Salát gyros",
+      "description": "Vepřový nebo kuřecí gyros s mixem salátu a pita.",
+      "price": 179
+    }
+  ]
+}

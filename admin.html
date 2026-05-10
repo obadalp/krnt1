@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Admin · Týdenní menu — Kousek Řecka na talíři</title>
+<meta name="robots" content="noindex, nofollow"/>
+
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='8' fill='%2300476e'/%3E%3Cpath d='M12 14h10v8h-6v8h10v-8h6v16h-10v-8h-6v8H12V14z' fill='%23ebe68d'/%3E%3C/svg%3E"/>
+
+<script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,700;1,400&family=Manrope:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined&display=swap" rel="stylesheet"/>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          "primary": "#00476e",
+          "primary-container": "#005f92",
+          "secondary": "#a03f29",
+          "tertiary": "#636116",
+          "tertiary-fixed": "#ebe68d",
+          "on-tertiary-fixed": "#1e1d00",
+          "surface": "#f8f9fa",
+          "surface-container": "#edeeef",
+          "surface-container-low": "#f3f4f5",
+          "surface-container-lowest": "#ffffff",
+          "outline": "#717880",
+          "outline-variant": "#c0c7d0",
+          "on-surface": "#191c1d",
+          "on-surface-variant": "#40474f",
+        },
+        fontFamily: {
+          "headline": ["Noto Serif"],
+          "body": ["Manrope"],
+          "mono": ["JetBrains Mono"]
+        }
+      }
+    }
+  }
+</script>
+
+<style>
+  body { font-family: 'Manrope', sans-serif; background: #f3f4f5; color: #191c1d; }
+  h1, h2, h3 { font-family: 'Noto Serif', serif; }
+  .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400; }
+  .eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; font-weight: 600; }
+
+  /* PDF preview — bude se renderovat na canvas */
+  #pdf-render {
+    position: absolute; left: -9999px; top: 0;
+    width: 794px; /* A4 šířka v px @ 96dpi */
+    background: #ffffff;
+    font-family: 'Manrope', sans-serif;
+    color: #191c1d;
+  }
+  #pdf-render .pdf-inner {
+    padding: 56px 64px;
+  }
+  #pdf-render .pdf-header {
+    display: flex; justify-content: space-between; align-items: flex-end;
+    border-bottom: 2px solid #00476e;
+    padding-bottom: 20px;
+    margin-bottom: 36px;
+  }
+  #pdf-render .pdf-brand {
+    font-family: 'Noto Serif', serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: #00476e;
+    letter-spacing: -0.01em;
+  }
+  #pdf-render .pdf-brand em {
+    font-style: italic; font-weight: 400; color: #005f92;
+  }
+  #pdf-render .pdf-meta {
+    text-align: right;
+    font-size: 11px;
+    color: #40474f;
+    letter-spacing: 0.04em;
+    line-height: 1.6;
+  }
+  #pdf-render .pdf-meta .week {
+    font-family: 'Noto Serif', serif;
+    font-size: 18px;
+    color: #00476e;
+    font-weight: 700;
+    margin-top: 4px;
+  }
+  #pdf-render h1.pdf-title {
+    font-family: 'Noto Serif', serif;
+    font-size: 36px;
+    color: #00476e;
+    margin: 0 0 6px;
+    line-height: 1;
+  }
+  #pdf-render .pdf-subtitle {
+    font-size: 13px;
+    color: #40474f;
+    margin-bottom: 28px;
+    letter-spacing: 0.02em;
+  }
+  #pdf-render .pdf-day {
+    display: grid;
+    grid-template-columns: 110px 1fr 80px;
+    gap: 20px;
+    padding: 16px 0;
+    border-bottom: 1px solid #e1e3e4;
+    align-items: baseline;
+  }
+  #pdf-render .pdf-day:last-of-type { border-bottom: 1px solid #00476e; }
+  #pdf-render .pdf-day-label {
+    font-family: 'Noto Serif', serif;
+    font-size: 18px;
+    color: #00476e;
+    font-weight: 700;
+    font-style: italic;
+  }
+  #pdf-render .pdf-dish {
+    font-family: 'Noto Serif', serif;
+    font-size: 17px;
+    font-weight: 700;
+    color: #191c1d;
+  }
+  #pdf-render .pdf-desc {
+    font-size: 12px;
+    color: #40474f;
+    margin-top: 3px;
+    line-height: 1.5;
+  }
+  #pdf-render .pdf-price {
+    text-align: right;
+    font-family: 'Noto Serif', serif;
+    font-weight: 700;
+    color: #a03f29;
+    font-size: 16px;
+  }
+  #pdf-render .pdf-veg {
+    display: inline-block;
+    margin-left: 8px;
+    background: #ebe68d;
+    color: #1e1d00;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    padding: 2px 6px;
+    border-radius: 99px;
+    vertical-align: middle;
+  }
+  #pdf-render .pdf-fixed {
+    margin-top: 32px;
+    padding-top: 24px;
+  }
+  #pdf-render .pdf-fixed-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #636116;
+    font-weight: 600;
+    margin-bottom: 16px;
+  }
+  #pdf-render .pdf-fixed-row {
+    display: grid;
+    grid-template-columns: 1fr 80px;
+    gap: 20px;
+    padding: 10px 0;
+    border-bottom: 1px dotted #c0c7d0;
+    align-items: baseline;
+  }
+  #pdf-render .pdf-fixed-row:last-child { border-bottom: 0; }
+  #pdf-render .pdf-fixed-name {
+    font-family: 'Noto Serif', serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: #00476e;
+  }
+  #pdf-render .pdf-fixed-desc {
+    font-size: 11px;
+    color: #40474f;
+    margin-top: 2px;
+  }
+  #pdf-render .pdf-footer {
+    margin-top: 36px;
+    padding-top: 16px;
+    border-top: 1px solid #e1e3e4;
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    color: #717880;
+    letter-spacing: 0.04em;
+  }
+  #pdf-render .pdf-greek {
+    font-family: 'Noto Serif', serif;
+    font-style: italic;
+    color: #00476e;
+    font-size: 13px;
+  }
+  #pdf-render .pdf-soup {
+    font-size: 11px;
+    color: #40474f;
+    font-style: italic;
+    margin-top: 16px;
+    padding: 10px 14px;
+    background: rgba(0,71,110,0.04);
+    border-left: 3px solid #ebe68d;
+  }
+
+  /* Form styles */
+  .day-card {
+    background: #fff;
+    border: 1px solid #e1e3e4;
+    border-radius: 12px;
+    padding: 20px 24px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .day-card:focus-within {
+    border-color: #00476e;
+    box-shadow: 0 4px 16px rgba(0,71,110,0.08);
+  }
+  .day-label {
+    font-family: 'Noto Serif', serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: #00476e;
+  }
+  input.field, textarea.field {
+    width: 100%;
+    background: transparent;
+    border: 0;
+    border-bottom: 1px solid #c0c7d0;
+    padding: 8px 0;
+    font: inherit;
+    color: #191c1d;
+    transition: border-color 0.2s;
+  }
+  input.field:focus, textarea.field:focus {
+    outline: 0;
+    border-bottom-color: #00476e;
+  }
+  textarea.field { resize: none; }
+  .field-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: #717880;
+    font-weight: 600;
+  }
+
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 12px 22px;
+    border-radius: 999px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 0;
+  }
+  .btn-primary { background: #00476e; color: #fff; }
+  .btn-primary:hover { background: #003558; }
+  .btn-secondary { background: #a03f29; color: #fff; }
+  .btn-secondary:hover { background: #812914; }
+  .btn-ghost { background: transparent; color: #00476e; border: 1px solid #c0c7d0; }
+  .btn-ghost:hover { border-color: #00476e; background: rgba(0,71,110,0.04); }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .toast {
+    position: fixed; bottom: 24px; right: 24px;
+    background: #00476e;
+    color: #fff;
+    padding: 14px 20px;
+    border-radius: 8px;
+    box-shadow: 0 12px 28px rgba(0,71,110,0.3);
+    transform: translateY(100px);
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+    z-index: 100;
+    font-size: 14px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+  .toast.success { background: #15803d; }
+  .toast.error { background: #b91c1c; }
+</style>
+</head>
+
+<body>
+
+<header class="bg-primary text-white">
+  <div class="max-w-5xl mx-auto px-6 md:px-8 py-5 md:py-6 flex items-center justify-between gap-4 flex-wrap">
+    <div>
+      <span class="eyebrow text-tertiary-fixed block mb-1">Admin · týdenní menu</span>
+      <h1 class="text-xl md:text-2xl font-headline">Kousek Řecka na talíři</h1>
+    </div>
+    <div class="flex items-center gap-3">
+      <a href="index.html" class="btn btn-ghost" style="background:rgba(255,255,255,0.1);color:#fff;border-color:rgba(255,255,255,0.3);">
+        <span class="material-symbols-outlined" style="font-size:18px;">visibility</span>
+        Zobrazit web
+      </a>
+    </div>
+  </div>
+</header>
+
+<main class="max-w-5xl mx-auto px-6 md:px-8 py-8 md:py-12">
+
+  <!-- Intro -->
+  <div class="mb-8 md:mb-10">
+    <h2 class="text-2xl md:text-3xl font-headline text-primary mb-2">Polední menu pro tento týden</h2>
+    <p class="text-on-surface-variant text-sm md:text-base max-w-2xl">
+      Vyplňte jídla pro každý pracovní den. Po uložení se aktualizuje hlavní web a vygeneruje se PDF, které si můžete stáhnout a vytisknout.
+    </p>
+  </div>
+
+  <!-- Week info bar -->
+  <div class="bg-white rounded-xl border border-outline-variant/40 p-5 md:p-6 mb-8 flex items-center justify-between flex-wrap gap-4">
+    <div>
+      <span class="eyebrow text-tertiary mb-1 block">Týden</span>
+      <input type="text" id="week-label" class="font-headline text-xl text-primary bg-transparent border-0 focus:outline-0 focus:bg-primary/5 rounded px-2 -ml-2 py-1" placeholder="21.–25. dubna 2025" value="21.–25. dubna 2025"/>
+    </div>
+    <div class="flex items-center gap-2 text-xs text-on-surface-variant" id="last-saved-info">
+      <span class="material-symbols-outlined" style="font-size:14px;">schedule</span>
+      <span id="last-saved">Naposledy uloženo: —</span>
+    </div>
+  </div>
+
+  <!-- Days form -->
+  <form id="menu-form" class="space-y-4 md:space-y-5">
+    <!-- Filled by JS -->
+  </form>
+
+  <!-- Extras -->
+  <div class="mt-8 bg-white rounded-xl border border-outline-variant/40 p-5 md:p-6 space-y-5">
+    <h3 class="font-headline text-lg text-primary">Doplnění</h3>
+
+    <label class="flex items-center gap-3 cursor-pointer">
+      <input type="checkbox" id="soup-included" checked class="w-5 h-5 rounded text-primary focus:ring-primary"/>
+      <span class="text-sm">Polévka v ceně menu</span>
+    </label>
+
+    <div>
+      <span class="field-label block mb-2">Vegetariánská alternativa</span>
+      <textarea id="vegetarian-alternative" class="field" rows="2" placeholder="např. Halloumi sto gril nebo Salát gyros se sýrem Halloumi místo masa">Halloumi sto gril nebo Salát gyros se sýrem Halloumi místo masa</textarea>
+    </div>
+  </div>
+
+  <!-- Action buttons -->
+  <div class="mt-8 md:mt-10 flex flex-wrap gap-3 items-center sticky bottom-4 bg-surface-container-low/90 backdrop-blur p-3 rounded-xl border border-outline-variant/30 shadow-sm z-20">
+    <button type="button" id="save-btn" class="btn btn-primary">
+      <span class="material-symbols-outlined" style="font-size:18px;">save</span>
+      Uložit a publikovat
+    </button>
+    <button type="button" id="download-pdf-btn" class="btn btn-secondary">
+      <span class="material-symbols-outlined" style="font-size:18px;">picture_as_pdf</span>
+      Stáhnout PDF
+    </button>
+    <button type="button" id="download-json-btn" class="btn btn-ghost">
+      <span class="material-symbols-outlined" style="font-size:18px;">file_download</span>
+      Export dat (JSON)
+    </button>
+    <button type="button" id="reset-btn" class="btn btn-ghost ml-auto">
+      <span class="material-symbols-outlined" style="font-size:18px;">restart_alt</span>
+      Načíst znovu
+    </button>
+  </div>
+
+  <!-- Help section -->
+  <details class="mt-12 bg-white rounded-xl border border-outline-variant/40 p-5 md:p-6">
+    <summary class="cursor-pointer font-headline text-lg text-primary">Jak to funguje?</summary>
+    <div class="mt-4 space-y-3 text-sm text-on-surface-variant">
+      <p>1. <strong>Vyplníte 5 řádků</strong> — pro každý pracovní den jméno jídla, krátký popis a cenu.</p>
+      <p>2. <strong>Kliknete „Uložit a publikovat"</strong> — data se uloží a hlavní web se okamžitě aktualizuje.</p>
+      <p>3. <strong>Stáhnete PDF</strong> — vygeneruje se hezky naformátovaný jídelní lístek, který můžete vytisknout nebo poslat.</p>
+      <p>4. <strong>Příští neděli to celé zopakujete</strong> — formulář si pamatuje minulý týden, jen přepíšete jídla.</p>
+      <p class="text-xs italic pt-2">Tip: Cena je u všech položek 179 Kč podle vaší současné stálé struktury. Pokud byste chtěla pro některý den jinou cenu, klidně ji přepíšete.</p>
+    </div>
+  </details>
+</main>
+
+<!-- Hidden PDF render area -->
+<div id="pdf-render" aria-hidden="true">
+  <div class="pdf-inner">
+    <div class="pdf-header">
+      <div>
+        <div class="pdf-brand">Kousek Řecka <em>na talíři</em></div>
+        <div style="font-size:10px;color:#717880;letter-spacing:0.1em;text-transform:uppercase;margin-top:6px;">Anenská 4 · Brno · +420 604 168 477</div>
+      </div>
+      <div class="pdf-meta">
+        <div style="text-transform:uppercase;font-size:9px;letter-spacing:0.16em;">Polední menu</div>
+        <div class="week" id="pdf-week">21.–25. dubna 2025</div>
+      </div>
+    </div>
+
+    <h1 class="pdf-title">Týdenní polední menu</h1>
+    <div class="pdf-subtitle">Po až Pá · 10:30 – 14:00 · vždy za 179 Kč</div>
+
+    <div id="pdf-days"></div>
+
+    <div class="pdf-fixed">
+      <div class="pdf-fixed-title">Stálá nabídka po celý týden</div>
+      <div id="pdf-fixed-items"></div>
+    </div>
+
+    <div class="pdf-soup" id="pdf-soup">Polévka v ceně menu (dle nabídky).</div>
+
+    <div class="pdf-footer">
+      <div>kousekreckanataliri.cz · Anenská 4, Brno</div>
+      <div class="pdf-greek">Καλή όρεξη · dobrou chuť</div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast" class="toast">
+  <span class="material-symbols-outlined" style="font-size:20px;">check_circle</span>
+  <span id="toast-message">Uloženo</span>
+</div>
+
+<script>
+const STORAGE_KEY = 'krnt-weekly-menu';
+const DEFAULT_DATA = {
+  week: { year: 2025, number: 17, label: '21.–25. dubna 2025' },
+  updatedAt: null,
+  soupIncluded: true,
+  vegetarianAlternative: 'Halloumi sto gril nebo Salát gyros se sýrem Halloumi místo masa',
+  days: [
+    { weekday: 1, name: 'Pondělí', dish: 'Halloumi sto gril', description: 'Grilovaný sýr Halloumi, naše hranolky a salátek.', price: 179, vegetarian: true },
+    { weekday: 2, name: 'Úterý', dish: 'Mousaka', description: 'Lilek, mleté maso, brambory zapečené bešamelem, salátek.', price: 179, vegetarian: false },
+    { weekday: 3, name: 'Středa', dish: 'Bujurdi', description: 'Zapečený sýr Feta s rajčaty a paprikou, hranolky, salátek.', price: 179, vegetarian: true },
+    { weekday: 4, name: 'Čtvrtek', dish: 'Tygania mix', description: 'Kuřecí a vepřové kousky s cibulí, paprikou a česnekem na pánvi, pita nebo naše hranolky, salátek.', price: 179, vegetarian: false },
+    { weekday: 5, name: 'Pátek', dish: 'Gyros burger', description: 'Gyros se zeleninou, tzatziki a karamelizovanou cibulkou v burger housce, hranolky a salátek.', price: 179, vegetarian: false }
+  ],
+  fixedItems: [
+    { name: 'Gyros kotopulo', description: 'Kuřecí gyros, naše hranolky, cibule, pita a rajče.', price: 179 },
+    { name: 'Gyros chirinos', description: 'Vepřový gyros, naše hranolky, cibule, pita a rajče.', price: 179 },
+    { name: 'Kalamary', description: 'Smažené kroužky kalamarů v těstíčku, naše hranolky a salátek.', price: 179 },
+    { name: 'Salát gyros', description: 'Vepřový nebo kuřecí gyros s mixem salátu a pita.', price: 179 }
+  ]
+};
+
+function loadData() {
+  // First try localStorage (admin's edits)
+  const stored = localStorage.getItem(STORAGE_KEY);
+  if (stored) {
+    try { return JSON.parse(stored); } catch(e) { console.warn('Stored data invalid'); }
+  }
+  // Fallback to JSON file
+  return fetch('data/weekly-menu.json')
+    .then(r => r.ok ? r.json() : DEFAULT_DATA)
+    .catch(() => DEFAULT_DATA);
+}
+
+async function init() {
+  const data = await Promise.resolve(loadData());
+  populateForm(data);
+  updateLastSavedDisplay(data.updatedAt);
+}
+
+function populateForm(data) {
+  // Week label
+  document.getElementById('week-label').value = data.week?.label || '';
+  document.getElementById('soup-included').checked = !!data.soupIncluded;
+  document.getElementById('vegetarian-alternative').value = data.vegetarianAlternative || '';
+
+  // Days
+  const form = document.getElementById('menu-form');
+  form.innerHTML = '';
+  data.days.forEach((day, i) => {
+    const card = document.createElement('div');
+    card.className = 'day-card';
+    card.dataset.weekday = day.weekday;
+    card.innerHTML = `
+      <div class="grid md:grid-cols-[140px_1fr] gap-5 items-start">
+        <div>
+          <span class="day-label">${day.name}</span>
+          <label class="flex items-center gap-2 mt-3 text-xs cursor-pointer">
+            <input type="checkbox" data-field="vegetarian" class="w-4 h-4 rounded text-primary" ${day.vegetarian ? 'checked' : ''}/>
+            <span class="text-on-surface-variant">Vegetariánské</span>
+          </label>
+        </div>
+        <div class="space-y-4">
+          <div>
+            <span class="field-label block mb-1">Název jídla</span>
+            <input type="text" data-field="dish" class="field text-lg font-headline text-primary" value="${escapeHtml(day.dish)}"/>
+          </div>
+          <div>
+            <span class="field-label block mb-1">Popis</span>
+            <textarea data-field="description" class="field" rows="2">${escapeHtml(day.description)}</textarea>
+          </div>
+          <div class="flex items-baseline gap-3">
+            <span class="field-label">Cena (Kč)</span>
+            <input type="number" data-field="price" class="field max-w-[100px] text-secondary font-bold" value="${day.price}"/>
+          </div>
+        </div>
+      </div>
+    `;
+    form.appendChild(card);
+  });
+}
+
+function escapeHtml(s) {
+  return String(s || '')
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
+function gatherData() {
+  const days = [];
+  document.querySelectorAll('#menu-form .day-card').forEach(card => {
+    const weekday = parseInt(card.dataset.weekday);
+    const names = ['', 'Pondělí', 'Úterý', 'Středa', 'Čtvrtek', 'Pátek'];
+    days.push({
+      weekday,
+      name: names[weekday],
+      dish: card.querySelector('[data-field="dish"]').value.trim(),
+      description: card.querySelector('[data-field="description"]').value.trim(),
+      price: parseInt(card.querySelector('[data-field="price"]').value) || 179,
+      vegetarian: card.querySelector('[data-field="vegetarian"]').checked
+    });
+  });
+  return {
+    week: {
+      year: new Date().getFullYear(),
+      number: getWeekNumber(new Date()),
+      label: document.getElementById('week-label').value.trim()
+    },
+    updatedAt: new Date().toISOString(),
+    soupIncluded: document.getElementById('soup-included').checked,
+    vegetarianAlternative: document.getElementById('vegetarian-alternative').value.trim(),
+    days,
+    fixedItems: DEFAULT_DATA.fixedItems
+  };
+}
+
+function getWeekNumber(d) {
+  d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+  d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+  return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+}
+
+function updateLastSavedDisplay(iso) {
+  const el = document.getElementById('last-saved');
+  if (!iso) { el.textContent = 'Naposledy uloženo: —'; return; }
+  const d = new Date(iso);
+  const fmt = d.toLocaleDateString('cs-CZ', { day: 'numeric', month: 'long', year: 'numeric' }) + ', ' +
+              d.toLocaleTimeString('cs-CZ', { hour: '2-digit', minute: '2-digit' });
+  el.textContent = 'Naposledy uloženo: ' + fmt;
+}
+
+function showToast(message, type = 'success') {
+  const toast = document.getElementById('toast');
+  document.getElementById('toast-message').textContent = message;
+  toast.className = 'toast ' + type;
+  setTimeout(() => toast.classList.add('show'), 10);
+  setTimeout(() => toast.classList.remove('show'), 3000);
+}
+
+// SAVE
+document.getElementById('save-btn').addEventListener('click', () => {
+  const data = gatherData();
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  updateLastSavedDisplay(data.updatedAt);
+  showToast('Uloženo · web je aktuální');
+});
+
+// EXPORT JSON
+document.getElementById('download-json-btn').addEventListener('click', () => {
+  const data = gatherData();
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `weekly-menu-${data.week.year}-W${data.week.number}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('JSON stažen');
+});
+
+// RESET
+document.getElementById('reset-btn').addEventListener('click', async () => {
+  if (!confirm('Opravdu znovu načíst data ze souboru? Neuložené změny budou ztraceny.')) return;
+  localStorage.removeItem(STORAGE_KEY);
+  await init();
+  showToast('Načteno znovu');
+});
+
+// PDF
+document.getElementById('download-pdf-btn').addEventListener('click', async () => {
+  const btn = document.getElementById('download-pdf-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:18px;">hourglass_empty</span> Generuji…';
+
+  try {
+    const data = gatherData();
+    renderPdfPreview(data);
+
+    // Wait for fonts
+    await document.fonts.ready;
+    await new Promise(r => setTimeout(r, 200));
+
+    const target = document.getElementById('pdf-render');
+    const canvas = await html2canvas(target, {
+      scale: 2,
+      backgroundColor: '#ffffff',
+      logging: false,
+      useCORS: true
+    });
+
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+    const imgWidth = 210; // A4 width in mm
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+    pdf.addImage(canvas.toDataURL('image/jpeg', 0.95), 'JPEG', 0, 0, imgWidth, imgHeight);
+
+    const filename = `denni-menu-${data.week.label.replace(/\s+/g, '-').replace(/\./g, '')}.pdf`;
+    pdf.save(filename);
+
+    showToast('PDF staženo');
+  } catch(e) {
+    console.error(e);
+    showToast('Chyba při generování PDF', 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:18px;">picture_as_pdf</span> Stáhnout PDF';
+  }
+});
+
+function renderPdfPreview(data) {
+  document.getElementById('pdf-week').textContent = data.week.label;
+  document.getElementById('pdf-soup').textContent = data.soupIncluded
+    ? 'Polévka v ceně menu (dle nabídky).'
+    : 'Polévka samostatně k objednání.';
+
+  // Days
+  const daysContainer = document.getElementById('pdf-days');
+  daysContainer.innerHTML = data.days.map(d => `
+    <div class="pdf-day">
+      <div class="pdf-day-label">${d.name}</div>
+      <div>
+        <div class="pdf-dish">${escapeHtml(d.dish)}${d.vegetarian ? '<span class="pdf-veg">VEGE</span>' : ''}</div>
+        <div class="pdf-desc">${escapeHtml(d.description)}</div>
+      </div>
+      <div class="pdf-price">${d.price} Kč</div>
+    </div>
+  `).join('');
+
+  // Fixed items
+  document.getElementById('pdf-fixed-items').innerHTML = data.fixedItems.map(it => `
+    <div class="pdf-fixed-row">
+      <div>
+        <div class="pdf-fixed-name">${escapeHtml(it.name)}</div>
+        <div class="pdf-fixed-desc">${escapeHtml(it.description)}</div>
+      </div>
+      <div class="pdf-price">${it.price} Kč</div>
+    </div>
+  `).join('');
+}
+
+// Init
+init();
+</script>
+
+</body>
+</html>
