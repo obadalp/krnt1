@@ -128,10 +128,9 @@
     display: grid;
     grid-template-columns: 100px 1fr 90px;
     column-gap: 22px;
-    padding: 14px 0;
+    padding: 16px 0;
     border-bottom: 1px solid #e1e3e4;
-    align-items: center;
-    min-height: 78px;
+    align-items: start;
   }
   #pdf-render .pdf-day:last-of-type { border-bottom: 0; }
   #pdf-render .pdf-day-label {
@@ -144,8 +143,13 @@
   #pdf-render .pdf-desc {
     font-size: 12px;
     color: #40474f;
-    margin-top: 4px;
-    line-height: 1.45;
+    margin-top: 5px;
+    line-height: 1.5;
+    /* rezervuje 2 řádky → všechny pdf-day mají stejnou výšku;
+       align-items: start na rodiči zajistí, že den a cena sedí nahoře u jídla */
+    min-height: 36px;
+    max-height: 36px;
+    overflow: hidden;
   }
   #pdf-render .pdf-price {
     text-align: right;
@@ -403,19 +407,11 @@
   </div>
 
   <!-- Extras -->
-  <div class="mt-8 bg-white rounded-xl border border-outline-variant/40 p-5 md:p-6 space-y-5">
-    <h3 class="font-headline text-lg text-primary">Doplnění</h3>
-
+  <div class="mt-8 bg-white rounded-xl border border-outline-variant/40 p-5 md:p-6">
     <label class="flex items-center gap-3 cursor-pointer">
       <input type="checkbox" id="soup-included" checked class="w-5 h-5 rounded text-primary focus:ring-primary"/>
       <span class="text-sm">Polévka v ceně menu</span>
     </label>
-
-    <div>
-      <span class="field-label block mb-2">Vegetariánská alternativa</span>
-      <textarea id="vegetarian-alternative" class="field" rows="2" placeholder="např. Halloumi sto gril nebo Salát gyros se sýrem Halloumi místo masa">Halloumi sto gril nebo Salát gyros se sýrem Halloumi místo masa</textarea>
-      <p class="text-[11px] text-on-surface-variant mt-1 italic">Zobrazí se jen na webu (v sekci Týdenní menu). Do PDF se nepřidává.</p>
-    </div>
   </div>
 
   <!-- Action buttons -->
@@ -498,7 +494,6 @@ const DEFAULT_DATA = {
   week: { year: 2025, number: 17, label: '21.–25. dubna 2025', startDate: null, endDate: null, customLabel: '' },
   updatedAt: null,
   soupIncluded: true,
-  vegetarianAlternative: 'Halloumi sto gril nebo Salát gyros se sýrem Halloumi místo masa',
   days: [
     { weekday: 1, name: 'Pondělí', dish: 'Halloumi sto gril', description: 'Grilovaný sýr Halloumi, naše hranolky a salátek.', price: 179, vegetarian: true },
     { weekday: 2, name: 'Úterý', dish: 'Mousaka', description: 'Lilek, mleté maso, brambory zapečené bešamelem, salátek.', price: 179, vegetarian: false },
@@ -662,7 +657,6 @@ function populateForm(data) {
   refreshWeekLabelDisplay();
 
   document.getElementById('soup-included').checked = !!data.soupIncluded;
-  document.getElementById('vegetarian-alternative').value = data.vegetarianAlternative || '';
 
   // Days
   const form = document.getElementById('menu-form');
@@ -790,7 +784,6 @@ function gatherData() {
     },
     updatedAt: new Date().toISOString(),
     soupIncluded: document.getElementById('soup-included').checked,
-    vegetarianAlternative: document.getElementById('vegetarian-alternative').value.trim(),
     days,
     fixedItems
   };
