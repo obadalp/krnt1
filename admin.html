@@ -1004,69 +1004,56 @@ function generatePdfNative(data) {
 
   y += 6;
 
-  // ===== DNY (uniformní řádky 22mm, obsah vertikálně vystředěn) =====
-  const dayRowH = 22;
+  // ===== DNY (uniformní řádky, vše na vertikálním středu) =====
+  const dayRowH = 24;
   const dayLabelW = 28;
   const priceW = 22;
   const dishX = mL + dayLabelW;
   const dishW = contentW - dayLabelW - priceW - 8;
 
-  // Měření v mm (přibližné pro 12pt/8pt Roboto)
-  const dishVisH = 4.3;     // celková viditelná výška jídla
-  const dishAsc  = 3.0;     // ascender (od baseline nahoru)
-  const descVisH = 2.8;     // celková výška popisu (1 řádek)
-  const descAsc  = 2.0;     // ascender popisu
-  const descLH   = 3.5;     // line-height popisu (mm)
-  const gap      = 1.5;     // mezera mezi jídlem a popisem
-
   data.days.forEach((d) => {
     const top = y;
+    const rowMid = top + dayRowH / 2;   // vertikální střed řádku
 
-    // Spočítat počet řádků popisu (max 2)
+    // Změřit popis (max 2 řádky)
     pdf.setFont('Roboto', 'normal').setFontSize(8);
     const descLines = pdf.splitTextToSize(d.description || '', dishW).slice(0, 2);
 
-    // Výška celého obsahového bloku (dish + gap + desc lines)
-    const descBlockH = descLines.length > 0
-      ? (descLines.length - 1) * descLH + descVisH
-      : 0;
-    const blockH = dishVisH + (descLines.length > 0 ? gap + descBlockH : 0);
+    // Pozice obsahu (vystředěné kolem rowMid):
+    // - Jídlo na horní polovině (baseline mírně nad rowMid)
+    // - Popis na spodní polovině (pod jídlem)
+    const dishBaseline = rowMid - 0.5;  // jídlo lehce nad středem
+    const firstDescBaseline = rowMid + 4.5; // popis lehce pod středem
 
-    // Vertikální centrování bloku v řádku
-    const blockTop = top + (dayRowH - blockH) / 2;
-
-    // Baseline dish textu (jsPDF y je baseline)
-    const dishBaseline = blockTop + dishAsc;
-
-    // Den (italic modrý) — na úrovni jídla
+    // DEN — vystředěn vertikálně přes baseline: 'middle'
     pdf.setFont('Roboto', 'bolditalic').setFontSize(13).setTextColor(...C.primary);
-    pdf.text(d.name, mL, dishBaseline);
+    pdf.text(d.name, mL, rowMid, { baseline: 'middle' });
 
-    // Jídlo (bold tmavé)
+    // CENA — vystředěna vertikálně
+    pdf.setFont('Roboto', 'bold').setFontSize(12).setTextColor(...C.secondary);
+    pdf.text(`${d.price} Kč`, pageW - mR, rowMid, { align: 'right', baseline: 'middle' });
+
+    // JÍDLO (bold tmavé)
     pdf.setFont('Roboto', 'bold').setFontSize(12).setTextColor(...C.text);
     pdf.text(d.dish, dishX, dishBaseline);
 
-    // VEGE pill
+    // VEGE pill — vertikálně zarovnaný s jídlem
     if (d.vegetarian) {
       const dW = pdf.getTextWidth(d.dish);
       const pillX = dishX + dW + 2;
-      const pillY = dishBaseline - 3.4;
+      const pillH = 4;
+      const pillY = dishBaseline - 3.2;  // pill visual center ~ dish text center
       pdf.setFillColor(...C.pillBg);
-      pdf.roundedRect(pillX, pillY, 9, 4, 1.5, 1.5, 'F');
+      pdf.roundedRect(pillX, pillY, 9, pillH, 1.5, 1.5, 'F');
       pdf.setFont('Roboto', 'bold').setFontSize(6).setTextColor(...C.pillFg);
-      pdf.text('VEGE', pillX + 4.5, pillY + 2.8, { align: 'center' });
+      pdf.text('VEGE', pillX + 4.5, pillY + pillH / 2, { align: 'center', baseline: 'middle' });
     }
 
-    // Popis (1-2 řádky, hned pod jídlem)
+    // POPIS (max 2 řádky, pod jídlem)
     pdf.setFont('Roboto', 'normal').setFontSize(8).setTextColor(...C.textMuted);
-    const firstDescBaseline = dishBaseline + (dishVisH - dishAsc) + gap + descAsc;
     descLines.forEach((line, i) => {
-      pdf.text(line, dishX, firstDescBaseline + i * descLH);
+      pdf.text(line, dishX, firstDescBaseline + i * 3.4);
     });
-
-    // Cena (bold červená) — na úrovni jídla
-    pdf.setFont('Roboto', 'bold').setFontSize(12).setTextColor(...C.secondary);
-    pdf.text(`${d.price} Kč`, pageW - mR, dishBaseline, { align: 'right' });
 
     // Spodní oddělovací čára
     pdf.setDrawColor(...C.lineLight).setLineWidth(0.2);
@@ -1091,43 +1078,35 @@ function generatePdfNative(data) {
     pdf.text('STÁLÁ NABÍDKA PO CELÝ TÝDEN', pageW / 2, y, { align: 'center' });
     y += 7;
 
-    const fxRowH = 13;
+    const fxRowH = 14;
     const fxDescW = contentW - priceW - 8;
-
-    // Měření pro 11pt/7.5pt
-    const fxNameVisH = 3.9;
-    const fxNameAsc  = 2.7;
-    const fxDescVisH = 2.6;
-    const fxDescAsc  = 1.9;
-    const fxGap      = 1.0;
 
     data.fixedItems.forEach((it, idx) => {
       const top = y;
+      const rowMid = top + fxRowH / 2;
 
       // 1 řádek popisu
       pdf.setFont('Roboto', 'normal').setFontSize(7.5);
       const descLine = pdf.splitTextToSize(it.description || '', fxDescW)[0] || '';
       const hasDesc = descLine.length > 0;
 
-      // Výška bloku (název + gap + popis)
-      const blockH = fxNameVisH + (hasDesc ? fxGap + fxDescVisH : 0);
-      const blockTop = top + (fxRowH - blockH) / 2;
-      const nameBaseline = blockTop + fxNameAsc;
+      // Pozice: název nad středem, popis pod středem
+      const nameBaseline = hasDesc ? rowMid - 0.5 : rowMid + 1.5;
+      const descBaseline = rowMid + 3.5;
 
-      // Název (bold modrý)
+      // CENA — vertikálně vystředěna
+      pdf.setFont('Roboto', 'bold').setFontSize(11).setTextColor(...C.secondary);
+      pdf.text(`${it.price} Kč`, pageW - mR, rowMid, { align: 'right', baseline: 'middle' });
+
+      // NÁZEV (bold modrý)
       pdf.setFont('Roboto', 'bold').setFontSize(11).setTextColor(...C.primary);
       pdf.text(it.name, mL, nameBaseline);
 
-      // Popis (pod názvem)
+      // POPIS (pod názvem)
       if (hasDesc) {
         pdf.setFont('Roboto', 'normal').setFontSize(7.5).setTextColor(...C.textMuted);
-        const descBaseline = nameBaseline + (fxNameVisH - fxNameAsc) + fxGap + fxDescAsc;
         pdf.text(descLine, mL, descBaseline);
       }
-
-      // Cena (bold červená) — na úrovni názvu
-      pdf.setFont('Roboto', 'bold').setFontSize(11).setTextColor(...C.secondary);
-      pdf.text(`${it.price} Kč`, pageW - mR, nameBaseline, { align: 'right' });
 
       // Tečkovaná spodní čára (mezi položkami)
       if (idx < data.fixedItems.length - 1) {
