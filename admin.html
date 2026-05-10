@@ -126,12 +126,13 @@
   }
   #pdf-render .pdf-day {
     display: grid;
-    grid-template-columns: 100px 1fr 90px;
+    grid-template-columns: 100px minmax(0, 1fr) 90px;
     column-gap: 22px;
-    padding: 14px 0;
+    padding: 16px 0;
     border-bottom: 1px solid #e1e3e4;
-    align-items: baseline;
+    align-items: start;
   }
+  #pdf-render .pdf-day > div { min-width: 0; }
   #pdf-render .pdf-day:last-of-type { border-bottom: 0; }
   #pdf-render .pdf-day-label {
     font-family: 'Noto Serif', serif;
@@ -143,8 +144,9 @@
   #pdf-render .pdf-desc {
     font-size: 12px;
     color: #40474f;
-    margin-top: 5px;
-    line-height: 1.5;
+    margin-top: 6px;
+    line-height: 1.6;
+    padding-bottom: 2px;
     /* každý popis přesně 1 řádek, přetečení → "..." */
     white-space: nowrap;
     overflow: hidden;
@@ -195,12 +197,13 @@
   }
   #pdf-render .pdf-fixed-row {
     display: grid;
-    grid-template-columns: 1fr 90px;
+    grid-template-columns: minmax(0, 1fr) 90px;
     column-gap: 22px;
-    padding: 10px 0;
+    padding: 12px 0;
     border-bottom: 1px dotted #c0c7d0;
-    align-items: baseline;
+    align-items: start;
   }
+  #pdf-render .pdf-fixed-row > div { min-width: 0; }
   #pdf-render .pdf-fixed-row:last-child { border-bottom: 0; }
   #pdf-render .pdf-fixed-name {
     font-family: 'Noto Serif', serif;
@@ -211,7 +214,9 @@
   #pdf-render .pdf-fixed-desc {
     font-size: 11px;
     color: #40474f;
-    margin-top: 2px;
+    margin-top: 3px;
+    line-height: 1.6;
+    padding-bottom: 2px;
     /* každý popis přesně 1 řádek, přetečení → "..." */
     white-space: nowrap;
     overflow: hidden;
