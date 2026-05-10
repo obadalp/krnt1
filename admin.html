@@ -124,17 +124,17 @@
     font-style: normal;
     margin: 0 8px;
   }
-  /* Týdenní menu — flexbox místo gridu (html2canvas si s gridem nerozumí) */
+  /* TÝDENNÍ MENU — pevná výška řádků pro 100% uniformitu v PDF */
   #pdf-render .pdf-day {
-    display: flex;
-    align-items: center;
-    padding: 16px 0;
+    display: grid;
+    grid-template-columns: 100px minmax(0, 1fr) 90px;
+    column-gap: 22px;
+    height: 90px;        /* pevná výška → všechny řádky stejné */
+    align-items: center; /* den, jídlo i cena vertikálně na střed */
     border-bottom: 1px solid #e1e3e4;
+    /* záměrně bez paddingu — u html2canvas rozbíjí centrování */
   }
   #pdf-render .pdf-day:last-of-type { border-bottom: 0; }
-  #pdf-render .pdf-day > div:nth-child(1) { width: 100px; flex-shrink: 0; }
-  #pdf-render .pdf-day > div:nth-child(2) { flex: 1; padding: 0 22px; min-width: 0; }
-  #pdf-render .pdf-day > div:nth-child(3) { width: 90px; flex-shrink: 0; text-align: right; }
   #pdf-render .pdf-day-label {
     font-family: 'Noto Serif', serif;
     font-size: 18px;
@@ -145,11 +145,9 @@
   #pdf-render .pdf-desc {
     font-size: 12px;
     color: #40474f;
-    margin-top: 6px;
-    line-height: 1.6;
-    padding-bottom: 2px;
-    /* dlouhé popisy se přirozeně zalomí, žádné ořezávání */
-    white-space: normal;
+    margin-top: 4px;
+    line-height: 1.4;     /* mírně menší řádkování ať to sedne do pevné výšky */
+    white-space: normal;  /* povoluje zalomení dlouhého popisu */
   }
   #pdf-render .pdf-price {
     text-align: right;
@@ -194,15 +192,15 @@
     margin: 0 0 16px;
     text-align: center;
   }
-  /* Stálá nabídka — flexbox místo gridu */
+  /* STÁLÁ NABÍDKA — pevná výška (menší než denní menu) */
   #pdf-render .pdf-fixed-row {
-    display: flex;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 90px;
+    column-gap: 22px;
+    height: 70px;        /* pevná výška → všechny položky stejné */
     align-items: center;
-    padding: 12px 0;
     border-bottom: 1px dotted #c0c7d0;
   }
-  #pdf-render .pdf-fixed-row > div:nth-child(1) { flex: 1; padding-right: 22px; min-width: 0; }
-  #pdf-render .pdf-fixed-row > div:nth-child(2) { width: 90px; flex-shrink: 0; text-align: right; }
   #pdf-render .pdf-fixed-row:last-child { border-bottom: 0; }
   #pdf-render .pdf-fixed-name {
     font-family: 'Noto Serif', serif;
@@ -214,9 +212,7 @@
     font-size: 11px;
     color: #40474f;
     margin-top: 3px;
-    line-height: 1.6;
-    padding-bottom: 2px;
-    /* dlouhé popisy se přirozeně zalomí, žádné ořezávání */
+    line-height: 1.4;
     white-space: normal;
   }
   #pdf-render .pdf-footer {
