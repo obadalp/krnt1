@@ -889,56 +889,255 @@ document.getElementById('reset-btn').addEventListener('click', async () => {
   showToast('Načteno znovu');
 });
 
-// PDF
+// =====================================================
+// NATIVNÍ PDF GENERÁTOR — pixel-perfect kreslení přes jsPDF
+// (žádný html2canvas, žádné CSS quirks)
+// =====================================================
+
+// Cache načtených fontů (Roboto má plnou podporu češtiny i řečtiny)
+const PDF_FONTS = { loaded: false, regular: null, bold: null, italic: null, boldItalic: null };
+
+async function loadPdfFonts() {
+  if (PDF_FONTS.loaded) return;
+  const base = 'https://cdn.jsdelivr.net/npm/roboto-fontface@0.10.0/fonts/roboto/';
+  const styles = {
+    regular:    'Roboto-Regular.ttf',
+    bold:       'Roboto-Bold.ttf',
+    italic:     'Roboto-Italic.ttf',
+    boldItalic: 'Roboto-BoldItalic.ttf',
+  };
+  for (const [key, file] of Object.entries(styles)) {
+    const resp = await fetch(base + file);
+    if (!resp.ok) throw new Error('Font ' + file + ' load failed');
+    const buffer = await resp.arrayBuffer();
+    const bytes = new Uint8Array(buffer);
+    let bin = '';
+    const chunk = 0x8000;
+    for (let i = 0; i < bytes.length; i += chunk) {
+      bin += String.fromCharCode.apply(null, bytes.subarray(i, i + chunk));
+    }
+    PDF_FONTS[key] = btoa(bin);
+  }
+  PDF_FONTS.loaded = true;
+}
+
+// Barvy z designu (RGB)
+const C = {
+  primary:    [0, 71, 110],
+  primaryAlt: [0, 95, 146],
+  secondary:  [160, 63, 41],
+  tertiary:   [99, 97, 22],
+  pillBg:     [235, 230, 141],
+  pillFg:     [30, 29, 0],
+  text:       [25, 28, 29],
+  textMuted:  [64, 71, 79],
+  textLight:  [113, 120, 128],
+  lineLight:  [225, 227, 228],
+  lineMid:    [192, 199, 208],
+};
+
+function generatePdfNative(data) {
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+
+  // Registrace Roboto (sans-serif, plně podporuje češtinu i řečtinu)
+  pdf.addFileToVFS('Roboto-Regular.ttf', PDF_FONTS.regular);
+  pdf.addFont('Roboto-Regular.ttf', 'Roboto', 'normal');
+  pdf.addFileToVFS('Roboto-Bold.ttf', PDF_FONTS.bold);
+  pdf.addFont('Roboto-Bold.ttf', 'Roboto', 'bold');
+  pdf.addFileToVFS('Roboto-Italic.ttf', PDF_FONTS.italic);
+  pdf.addFont('Roboto-Italic.ttf', 'Roboto', 'italic');
+  pdf.addFileToVFS('Roboto-BoldItalic.ttf', PDF_FONTS.boldItalic);
+  pdf.addFont('Roboto-BoldItalic.ttf', 'Roboto', 'bolditalic');
+
+  // Stránka
+  const pageW = 210, pageH = 297;
+  const mL = 16, mR = 16, mT = 16;
+  const contentW = pageW - mL - mR;
+
+  let y = mT;
+
+  // ===== HLAVIČKA =====
+  pdf.setFont('Roboto', 'bold').setFontSize(20).setTextColor(...C.primary);
+  pdf.text('Kousek Řecka', mL, y + 6);
+  const brandW = pdf.getTextWidth('Kousek Řecka');
+  pdf.setFont('Roboto', 'italic').setTextColor(...C.primaryAlt);
+  pdf.text(' na talíři', mL + brandW, y + 6);
+
+  pdf.setFont('Roboto', 'normal').setFontSize(7).setTextColor(...C.textLight);
+  pdf.text('ANENSKÁ 4 · BRNO · +420 604 168 477', mL, y + 11);
+
+  // pravý horní roh: meta
+  pdf.setFontSize(7).setTextColor(...C.textMuted);
+  pdf.text('POLEDNÍ MENU', pageW - mR, y + 4, { align: 'right' });
+
+  pdf.setFont('Roboto', 'bold').setFontSize(13).setTextColor(...C.primary);
+  pdf.text(data.week.label || '', pageW - mR, y + 10, { align: 'right' });
+
+  // Modrá čára pod hlavičkou
+  y += 14;
+  pdf.setDrawColor(...C.primary).setLineWidth(0.5);
+  pdf.line(mL, y, pageW - mR, y);
+  y += 14;
+
+  // ===== TITULNÍ BLOK (centrovaný) =====
+  pdf.setFont('Roboto', 'bold').setFontSize(24).setTextColor(...C.primary);
+  pdf.text('Týdenní polední menu', pageW / 2, y, { align: 'center' });
+  y += 6;
+
+  pdf.setFont('Roboto', 'bold').setFontSize(7).setTextColor(...C.tertiary);
+  pdf.text('PO AŽ PÁ  ·  10:30 – 14:00', pageW / 2, y, { align: 'center' });
+  y += 5;
+
+  if (data.soupIncluded) {
+    pdf.setFont('Roboto', 'italic').setFontSize(8).setTextColor(...C.textMuted);
+    pdf.text('Polévka v ceně menu', pageW / 2, y, { align: 'center' });
+    y += 5;
+  }
+
+  y += 6;
+
+  // ===== DNY (uniformní řádky 22mm) =====
+  const dayRowH = 22;       // pevná výška každého řádku
+  const dayLabelW = 28;     // šířka sloupce dne
+  const priceW = 22;        // šířka sloupce ceny
+  const dishX = mL + dayLabelW;
+  const dishW = contentW - dayLabelW - priceW - 8;
+  const lineY = 8;          // pozice první linie (jídlo, den, cena) v rámci řádku
+  const descY1 = 13;        // pozice 1. řádku popisu
+  const descLH = 3.5;       // line-height popisu
+
+  data.days.forEach((d) => {
+    const top = y;
+    const baseline = top + lineY;
+
+    // Den (italic, modrý)
+    pdf.setFont('Roboto', 'bolditalic').setFontSize(13).setTextColor(...C.primary);
+    pdf.text(d.name, mL, baseline);
+
+    // Jídlo (bold, tmavé)
+    pdf.setFont('Roboto', 'bold').setFontSize(12).setTextColor(...C.text);
+    pdf.text(d.dish, dishX, baseline);
+
+    // VEGE pill
+    if (d.vegetarian) {
+      const dW = pdf.getTextWidth(d.dish);
+      const pillX = dishX + dW + 2;
+      const pillY = baseline - 3.4;
+      const pillW = 9;
+      const pillH = 4;
+      pdf.setFillColor(...C.pillBg);
+      pdf.roundedRect(pillX, pillY, pillW, pillH, 1.5, 1.5, 'F');
+      pdf.setFont('Roboto', 'bold').setFontSize(6).setTextColor(...C.pillFg);
+      pdf.text('VEGE', pillX + pillW / 2, pillY + 2.8, { align: 'center' });
+    }
+
+    // Popis (max 2 řádky)
+    pdf.setFont('Roboto', 'normal').setFontSize(8).setTextColor(...C.textMuted);
+    const descLines = pdf.splitTextToSize(d.description || '', dishW).slice(0, 2);
+    descLines.forEach((line, i) => {
+      pdf.text(line, dishX, top + descY1 + i * descLH);
+    });
+
+    // Cena (bold, červená)
+    pdf.setFont('Roboto', 'bold').setFontSize(12).setTextColor(...C.secondary);
+    pdf.text(`${d.price} Kč`, pageW - mR, baseline, { align: 'right' });
+
+    // Spodní čára (kromě posledního dne)
+    pdf.setDrawColor(...C.lineLight).setLineWidth(0.2);
+    pdf.line(mL, top + dayRowH, pageW - mR, top + dayRowH);
+
+    y += dayRowH;
+  });
+
+  // ===== STÁLÁ NABÍDKA =====
+  if (data.fixedItems && data.fixedItems.length > 0) {
+    y += 6;
+
+    // Dashed separator
+    pdf.setDrawColor(...C.lineMid).setLineWidth(0.2);
+    pdf.setLineDashPattern([1, 1], 0);
+    pdf.line(mL, y, pageW - mR, y);
+    pdf.setLineDashPattern([], 0);
+    y += 7;
+
+    // Section title
+    pdf.setFont('Roboto', 'bold').setFontSize(7).setTextColor(...C.tertiary);
+    pdf.text('STÁLÁ NABÍDKA PO CELÝ TÝDEN', pageW / 2, y, { align: 'center' });
+    y += 7;
+
+    const fxRowH = 13;
+    const fxLineY = 5;
+    const fxDescY = 9;
+    const fxDescW = contentW - priceW - 8;
+
+    data.fixedItems.forEach((it, idx) => {
+      const top = y;
+      const baseline = top + fxLineY;
+
+      pdf.setFont('Roboto', 'bold').setFontSize(11).setTextColor(...C.primary);
+      pdf.text(it.name, mL, baseline);
+
+      pdf.setFont('Roboto', 'normal').setFontSize(7.5).setTextColor(...C.textMuted);
+      const descLine = pdf.splitTextToSize(it.description || '', fxDescW)[0] || '';
+      pdf.text(descLine, mL, top + fxDescY);
+
+      pdf.setFont('Roboto', 'bold').setFontSize(11).setTextColor(...C.secondary);
+      pdf.text(`${it.price} Kč`, pageW - mR, baseline, { align: 'right' });
+
+      // Tečkovaná spodní čára (mezi položkami)
+      if (idx < data.fixedItems.length - 1) {
+        pdf.setDrawColor(...C.lineMid).setLineWidth(0.2);
+        pdf.setLineDashPattern([0.5, 0.5], 0);
+        pdf.line(mL, top + fxRowH, pageW - mR, top + fxRowH);
+        pdf.setLineDashPattern([], 0);
+      }
+
+      y += fxRowH;
+    });
+  }
+
+  // ===== PATIČKA =====
+  y += 8;
+  pdf.setDrawColor(...C.lineLight).setLineWidth(0.2);
+  pdf.setLineDashPattern([], 0);
+  pdf.line(mL, y, pageW - mR, y);
+  y += 4;
+
+  pdf.setFont('Roboto', 'normal').setFontSize(7).setTextColor(...C.textLight);
+  pdf.text('kousekreckanataliri.cz · Anenská 4, Brno', mL, y);
+
+  pdf.setFont('Roboto', 'italic').setFontSize(8).setTextColor(...C.primary);
+  pdf.text('Καλή όρεξη · dobrou chuť', pageW - mR, y, { align: 'right' });
+
+  // Uložit
+  const safeLabel = (data.week.label || 'menu')
+    .replace(/–/g, '-')
+    .replace(/\./g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '');
+  pdf.save(`denni-menu-${safeLabel}.pdf`);
+}
+
+// PDF — handler tlačítka
 document.getElementById('download-pdf-btn').addEventListener('click', async () => {
   const btn = document.getElementById('download-pdf-btn');
   btn.disabled = true;
   btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:18px;">hourglass_empty</span> Generuji…';
 
   try {
-    const data = gatherData();
-    renderPdfPreview(data);
-
-    // Wait for fonts
-    await document.fonts.ready;
-    await new Promise(r => setTimeout(r, 200));
-
-    const target = document.getElementById('pdf-render');
-    const canvas = await html2canvas(target, {
-      scale: 2,
-      backgroundColor: '#ffffff',
-      logging: false,
-      useCORS: true
-    });
-
-    const { jsPDF } = window.jspdf;
-    const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-    const pageWidth = 210;   // A4 in mm
-    const pageHeight = 297;  // A4 in mm
-    let imgWidth = pageWidth;
-    let imgHeight = (canvas.height * imgWidth) / canvas.width;
-    let xOffset = 0;
-    if (imgHeight > pageHeight) {
-      // Scale-to-fit: zmenšit aby se vešlo na jednu A4 (zachová poměr stran)
-      imgHeight = pageHeight;
-      imgWidth = (canvas.width * imgHeight) / canvas.height;
-      xOffset = (pageWidth - imgWidth) / 2;
+    if (!PDF_FONTS.loaded) {
+      btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:18px;">hourglass_empty</span> Načítám fonty…';
+      await loadPdfFonts();
     }
-    pdf.addImage(canvas.toDataURL('image/jpeg', 0.95), 'JPEG', xOffset, 0, imgWidth, imgHeight);
 
-    const safeLabel = (data.week.label || 'menu')
-      .replace(/–/g, '-')
-      .replace(/\./g, '')
-      .replace(/\s+/g, '-')
-      .replace(/-+/g, '-')
-      .replace(/^-|-$/g, '');
-    const filename = `denni-menu-${safeLabel}.pdf`;
-    pdf.save(filename);
-
+    const data = gatherData();
+    generatePdfNative(data);
     showToast('PDF staženo');
-  } catch(e) {
+  } catch (e) {
     console.error(e);
-    showToast('Chyba při generování PDF', 'error');
+    showToast('Chyba při generování PDF: ' + e.message, 'error');
   } finally {
     btn.disabled = false;
     btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:18px;">picture_as_pdf</span> Stáhnout PDF';
