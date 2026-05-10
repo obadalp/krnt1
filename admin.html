@@ -124,39 +124,26 @@
     font-style: normal;
     margin: 0 8px;
   }
-  /* TÝDENNÍ MENU — pevná výška + line-height trick pro 100% spolehlivé centrování */
+  /* TÝDENNÍ MENU — flexbox + baseline: den a cena na úrovni jídla, popis pod tím */
   #pdf-render .pdf-day {
-    position: relative;
-    display: block;
-    height: 90px;             /* pevná výška řádku */
+    display: flex;
+    align-items: baseline;     /* den, jídlo, cena všechno na první účaře = jídlo */
+    padding: 22px 0;           /* symetrické odsazení od obou linek */
     border-bottom: 1px solid #e1e3e4;
   }
   #pdf-render .pdf-day:last-of-type { border-bottom: 0; }
-  /* Den — line-height = height = perfektně centrovaný text (klasický CSS trick) */
   #pdf-render .pdf-day > div:nth-child(1) {
-    position: absolute;
-    left: 0;
-    top: 0;
     width: 100px;
-    height: 90px;
-    line-height: 90px;        /* line-height = height → vizuální střed bez transform */
+    flex-shrink: 0;
   }
-  /* Jídlo + popis — multi-line, takže transform centrování */
   #pdf-render .pdf-day > div:nth-child(2) {
-    position: absolute;
-    left: 110px;
-    right: 100px;
-    top: 50%;
-    transform: translateY(-50%);
+    flex: 1;
+    padding: 0 22px;
+    min-width: 0;
   }
-  /* Cena — line-height trick, single line */
   #pdf-render .pdf-day > div:nth-child(3) {
-    position: absolute;
-    right: 0;
-    top: 0;
     width: 90px;
-    height: 90px;
-    line-height: 90px;
+    flex-shrink: 0;
     text-align: right;
   }
   #pdf-render .pdf-day-label {
@@ -217,30 +204,22 @@
     margin: 0 0 16px;
     text-align: center;
   }
-  /* STÁLÁ NABÍDKA — pevná výška + line-height trick pro cenu */
+  /* STÁLÁ NABÍDKA — flexbox + baseline */
   #pdf-render .pdf-fixed-row {
-    position: relative;
-    display: block;
-    height: 70px;
+    display: flex;
+    align-items: baseline;
+    padding: 16px 0;
     border-bottom: 1px dotted #c0c7d0;
   }
   #pdf-render .pdf-fixed-row:last-child { border-bottom: 0; }
-  /* Jídlo + popis — multi-line, transform centrování */
   #pdf-render .pdf-fixed-row > div:nth-child(1) {
-    position: absolute;
-    left: 0;
-    right: 100px;
-    top: 50%;
-    transform: translateY(-50%);
+    flex: 1;
+    padding-right: 22px;
+    min-width: 0;
   }
-  /* Cena — line-height trick */
   #pdf-render .pdf-fixed-row > div:nth-child(2) {
-    position: absolute;
-    right: 0;
-    top: 0;
     width: 90px;
-    height: 70px;
-    line-height: 70px;
+    flex-shrink: 0;
     text-align: right;
   }
   #pdf-render .pdf-fixed-row:last-child { border-bottom: 0; }
