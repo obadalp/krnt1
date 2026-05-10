@@ -1004,53 +1004,71 @@ function generatePdfNative(data) {
 
   y += 6;
 
-  // ===== DNY (uniformní řádky 22mm) =====
-  const dayRowH = 22;       // pevná výška každého řádku
-  const dayLabelW = 28;     // šířka sloupce dne
-  const priceW = 22;        // šířka sloupce ceny
+  // ===== DNY (uniformní řádky 22mm, obsah vertikálně vystředěn) =====
+  const dayRowH = 22;
+  const dayLabelW = 28;
+  const priceW = 22;
   const dishX = mL + dayLabelW;
   const dishW = contentW - dayLabelW - priceW - 8;
-  const lineY = 8;          // pozice první linie (jídlo, den, cena) v rámci řádku
-  const descY1 = 13;        // pozice 1. řádku popisu
-  const descLH = 3.5;       // line-height popisu
+
+  // Měření v mm (přibližné pro 12pt/8pt Roboto)
+  const dishVisH = 4.3;     // celková viditelná výška jídla
+  const dishAsc  = 3.0;     // ascender (od baseline nahoru)
+  const descVisH = 2.8;     // celková výška popisu (1 řádek)
+  const descAsc  = 2.0;     // ascender popisu
+  const descLH   = 3.5;     // line-height popisu (mm)
+  const gap      = 1.5;     // mezera mezi jídlem a popisem
 
   data.days.forEach((d) => {
     const top = y;
-    const baseline = top + lineY;
 
-    // Den (italic, modrý)
+    // Spočítat počet řádků popisu (max 2)
+    pdf.setFont('Roboto', 'normal').setFontSize(8);
+    const descLines = pdf.splitTextToSize(d.description || '', dishW).slice(0, 2);
+
+    // Výška celého obsahového bloku (dish + gap + desc lines)
+    const descBlockH = descLines.length > 0
+      ? (descLines.length - 1) * descLH + descVisH
+      : 0;
+    const blockH = dishVisH + (descLines.length > 0 ? gap + descBlockH : 0);
+
+    // Vertikální centrování bloku v řádku
+    const blockTop = top + (dayRowH - blockH) / 2;
+
+    // Baseline dish textu (jsPDF y je baseline)
+    const dishBaseline = blockTop + dishAsc;
+
+    // Den (italic modrý) — na úrovni jídla
     pdf.setFont('Roboto', 'bolditalic').setFontSize(13).setTextColor(...C.primary);
-    pdf.text(d.name, mL, baseline);
+    pdf.text(d.name, mL, dishBaseline);
 
-    // Jídlo (bold, tmavé)
+    // Jídlo (bold tmavé)
     pdf.setFont('Roboto', 'bold').setFontSize(12).setTextColor(...C.text);
-    pdf.text(d.dish, dishX, baseline);
+    pdf.text(d.dish, dishX, dishBaseline);
 
     // VEGE pill
     if (d.vegetarian) {
       const dW = pdf.getTextWidth(d.dish);
       const pillX = dishX + dW + 2;
-      const pillY = baseline - 3.4;
-      const pillW = 9;
-      const pillH = 4;
+      const pillY = dishBaseline - 3.4;
       pdf.setFillColor(...C.pillBg);
-      pdf.roundedRect(pillX, pillY, pillW, pillH, 1.5, 1.5, 'F');
+      pdf.roundedRect(pillX, pillY, 9, 4, 1.5, 1.5, 'F');
       pdf.setFont('Roboto', 'bold').setFontSize(6).setTextColor(...C.pillFg);
-      pdf.text('VEGE', pillX + pillW / 2, pillY + 2.8, { align: 'center' });
+      pdf.text('VEGE', pillX + 4.5, pillY + 2.8, { align: 'center' });
     }
 
-    // Popis (max 2 řádky)
+    // Popis (1-2 řádky, hned pod jídlem)
     pdf.setFont('Roboto', 'normal').setFontSize(8).setTextColor(...C.textMuted);
-    const descLines = pdf.splitTextToSize(d.description || '', dishW).slice(0, 2);
+    const firstDescBaseline = dishBaseline + (dishVisH - dishAsc) + gap + descAsc;
     descLines.forEach((line, i) => {
-      pdf.text(line, dishX, top + descY1 + i * descLH);
+      pdf.text(line, dishX, firstDescBaseline + i * descLH);
     });
 
-    // Cena (bold, červená)
+    // Cena (bold červená) — na úrovni jídla
     pdf.setFont('Roboto', 'bold').setFontSize(12).setTextColor(...C.secondary);
-    pdf.text(`${d.price} Kč`, pageW - mR, baseline, { align: 'right' });
+    pdf.text(`${d.price} Kč`, pageW - mR, dishBaseline, { align: 'right' });
 
-    // Spodní čára (kromě posledního dne)
+    // Spodní oddělovací čára
     pdf.setDrawColor(...C.lineLight).setLineWidth(0.2);
     pdf.line(mL, top + dayRowH, pageW - mR, top + dayRowH);
 
@@ -1074,23 +1092,42 @@ function generatePdfNative(data) {
     y += 7;
 
     const fxRowH = 13;
-    const fxLineY = 5;
-    const fxDescY = 9;
     const fxDescW = contentW - priceW - 8;
+
+    // Měření pro 11pt/7.5pt
+    const fxNameVisH = 3.9;
+    const fxNameAsc  = 2.7;
+    const fxDescVisH = 2.6;
+    const fxDescAsc  = 1.9;
+    const fxGap      = 1.0;
 
     data.fixedItems.forEach((it, idx) => {
       const top = y;
-      const baseline = top + fxLineY;
 
-      pdf.setFont('Roboto', 'bold').setFontSize(11).setTextColor(...C.primary);
-      pdf.text(it.name, mL, baseline);
-
-      pdf.setFont('Roboto', 'normal').setFontSize(7.5).setTextColor(...C.textMuted);
+      // 1 řádek popisu
+      pdf.setFont('Roboto', 'normal').setFontSize(7.5);
       const descLine = pdf.splitTextToSize(it.description || '', fxDescW)[0] || '';
-      pdf.text(descLine, mL, top + fxDescY);
+      const hasDesc = descLine.length > 0;
 
+      // Výška bloku (název + gap + popis)
+      const blockH = fxNameVisH + (hasDesc ? fxGap + fxDescVisH : 0);
+      const blockTop = top + (fxRowH - blockH) / 2;
+      const nameBaseline = blockTop + fxNameAsc;
+
+      // Název (bold modrý)
+      pdf.setFont('Roboto', 'bold').setFontSize(11).setTextColor(...C.primary);
+      pdf.text(it.name, mL, nameBaseline);
+
+      // Popis (pod názvem)
+      if (hasDesc) {
+        pdf.setFont('Roboto', 'normal').setFontSize(7.5).setTextColor(...C.textMuted);
+        const descBaseline = nameBaseline + (fxNameVisH - fxNameAsc) + fxGap + fxDescAsc;
+        pdf.text(descLine, mL, descBaseline);
+      }
+
+      // Cena (bold červená) — na úrovni názvu
       pdf.setFont('Roboto', 'bold').setFontSize(11).setTextColor(...C.secondary);
-      pdf.text(`${it.price} Kč`, pageW - mR, baseline, { align: 'right' });
+      pdf.text(`${it.price} Kč`, pageW - mR, nameBaseline, { align: 'right' });
 
       // Tečkovaná spodní čára (mezi položkami)
       if (idx < data.fixedItems.length - 1) {
