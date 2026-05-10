@@ -94,14 +94,14 @@
   }
   #pdf-render .pdf-title-block {
     text-align: center;
-    margin-bottom: 26px;
+    margin-bottom: 28px;
   }
   #pdf-render h1.pdf-title {
     font-family: 'Noto Serif', serif;
     font-size: 32px;
     color: #00476e;
-    margin: 0 0 6px;
-    line-height: 1.05;
+    margin: 0 0 14px;
+    line-height: 1.15;
   }
   #pdf-render .pdf-subtitle {
     font-family: 'JetBrains Mono', monospace;
@@ -128,23 +128,17 @@
     display: grid;
     grid-template-columns: 100px 1fr 90px;
     gap: 22px;
-    padding: 13px 0;
+    padding: 14px 0;
     border-bottom: 1px solid #e1e3e4;
-    align-items: baseline;
+    align-items: center;
   }
-  #pdf-render .pdf-day:last-of-type { border-bottom: 1px solid #00476e; }
+  #pdf-render .pdf-day:last-of-type { border-bottom: 0; }
   #pdf-render .pdf-day-label {
     font-family: 'Noto Serif', serif;
     font-size: 18px;
     color: #00476e;
     font-weight: 700;
     font-style: italic;
-  }
-  #pdf-render .pdf-dish {
-    font-family: 'Noto Serif', serif;
-    font-size: 17px;
-    font-weight: 700;
-    color: #191c1d;
   }
   #pdf-render .pdf-desc {
     font-size: 12px;
@@ -159,21 +153,35 @@
     color: #a03f29;
     font-size: 16px;
   }
+  #pdf-render .pdf-dish {
+    font-family: 'Noto Serif', serif;
+    font-size: 17px;
+    font-weight: 700;
+    color: #191c1d;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  #pdf-render .pdf-dish .pdf-veg-wrap { display: inline-flex; }
   #pdf-render .pdf-veg {
     display: inline-block;
-    margin-left: 8px;
     background: #ebe68d;
     color: #1e1d00;
+    font-family: 'JetBrains Mono', monospace;
     font-size: 9px;
     font-weight: 700;
-    letter-spacing: 0.1em;
-    padding: 2px 6px;
+    letter-spacing: 0.12em;
+    padding: 3px 8px 2px;
     border-radius: 99px;
-    vertical-align: middle;
+    line-height: 1;
+    position: relative;
+    top: -1px;
   }
   #pdf-render .pdf-fixed {
-    margin-top: 22px;
-    padding-top: 18px;
+    margin-top: 26px;
+    padding-top: 22px;
+    border-top: 1px dashed #c0c7d0;
   }
   #pdf-render .pdf-fixed-title {
     font-family: 'JetBrains Mono', monospace;
@@ -182,15 +190,16 @@
     text-transform: uppercase;
     color: #636116;
     font-weight: 600;
-    margin-bottom: 12px;
+    margin: 0 0 16px;
+    text-align: center;
   }
   #pdf-render .pdf-fixed-row {
     display: grid;
     grid-template-columns: 1fr 90px;
     gap: 22px;
-    padding: 8px 0;
+    padding: 9px 0;
     border-bottom: 1px dotted #c0c7d0;
-    align-items: baseline;
+    align-items: center;
   }
   #pdf-render .pdf-fixed-row:last-child { border-bottom: 0; }
   #pdf-render .pdf-fixed-name {
@@ -359,6 +368,20 @@
       <input type="text" id="week-label" class="mt-2 w-full bg-transparent border border-outline-variant rounded-md px-3 py-2 text-sm focus:outline-none focus:border-primary" placeholder="Automaticky podle dat výše"/>
       <p class="text-[11px] text-on-surface-variant mt-1 italic">Pokud necháte prázdné, použije se automatický popis (např. „21.–25. dubna 2025").</p>
     </details>
+
+    <!-- Stale-week banner -->
+    <div id="week-stale-banner" class="mt-4 bg-tertiary-fixed/30 border border-tertiary/40 rounded-lg p-3 md:p-4 flex items-center justify-between gap-3 flex-wrap" style="display:none;">
+      <div class="text-sm flex items-start gap-2 flex-1 min-w-[200px]">
+        <span class="material-symbols-outlined text-tertiary mt-0.5" style="font-size:20px;">event_available</span>
+        <span>
+          Týden <strong class="banner-old-week">—</strong> už skončil. Připravujete jídla na další týden?
+        </span>
+      </div>
+      <button type="button" class="banner-advance-btn btn btn-primary" style="padding:7px 16px;font-size:13px;">
+        <span class="material-symbols-outlined" style="font-size:16px;">arrow_forward</span>
+        Posunout na <span class="banner-new-week">—</span>
+      </button>
+    </div>
   </div>
 
   <!-- Days form -->
@@ -568,6 +591,7 @@ function refreshWeekLabelDisplay() {
   const auto = formatWeekLabel(startDate, endDate);
   const custom = (customEl.value || '').trim();
   display.textContent = custom || auto || '—';
+  refreshStaleBanner();
 }
 
 function setWeekDates(monday) {
@@ -577,19 +601,65 @@ function setWeekDates(monday) {
   refreshWeekLabelDisplay();
 }
 
+// Vrací pondělí týdne, který by měl být "aktuální" pro publikaci:
+//   Po-Čt → tento týden (Marcela ještě týden ladí)
+//   Pá-Ne → příští týden (běžně se připravuje na nadcházející týden)
+function getRecommendedMonday() {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const day = today.getDay(); // 0=Ne ... 6=So
+  const monday = getMondayOf(today);
+  if (day === 0 || day >= 5) {
+    // Pátek, sobota, neděle → příští týden
+    return addDays(monday, 7);
+  }
+  return monday;
+}
+
+// Skryje/ukáže banner pokud je uložený endDate v minulosti
+function refreshStaleBanner() {
+  const banner = document.getElementById('week-stale-banner');
+  if (!banner) return;
+
+  const endStr = document.getElementById('week-end').value;
+  const endDate = parseIsoDate(endStr);
+  if (!endDate) { banner.style.display = 'none'; return; }
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  if (endDate >= today) {
+    banner.style.display = 'none';
+    return;
+  }
+
+  // Týden už skončil → nabídnout posun
+  const startDate = parseIsoDate(document.getElementById('week-start').value);
+  const oldLabel = formatWeekLabel(startDate, endDate) || '—';
+
+  const recommendedMonday = getRecommendedMonday();
+  const recommendedFriday = addDays(recommendedMonday, 4);
+  const newLabel = formatWeekLabel(recommendedMonday, recommendedFriday);
+
+  banner.querySelector('.banner-old-week').textContent = oldLabel;
+  banner.querySelector('.banner-new-week').textContent = newLabel;
+  banner.style.display = 'flex';
+}
+
 function populateForm(data) {
   // Week
   const customLabelEl = document.getElementById('week-label');
   customLabelEl.value = data.week?.customLabel || '';
 
-  // Set dates: prefer stored ISO dates, fallback to current week
+  // Set dates: prefer stored ISO dates, fallback to recommended week
+  // (Po-Čt → tento týden, Pá-Ne → příští týden)
   const storedStart = data.week?.startDate ? parseIsoDate(data.week.startDate) : null;
   const storedEnd = data.week?.endDate ? parseIsoDate(data.week.endDate) : null;
   if (storedStart && storedEnd) {
     document.getElementById('week-start').value = toIsoDate(storedStart);
     document.getElementById('week-end').value = toIsoDate(storedEnd);
   } else {
-    setWeekDates(getMondayOf(new Date()));
+    setWeekDates(getRecommendedMonday());
   }
   refreshWeekLabelDisplay();
 
@@ -759,6 +829,12 @@ document.getElementById('btn-this-week').addEventListener('click', () => {
 });
 document.getElementById('btn-next-week').addEventListener('click', () => {
   setWeekDates(addDays(getMondayOf(new Date()), 7));
+});
+
+// Banner "Posunout na další týden" — využívá doporučený týden
+document.querySelector('#week-stale-banner .banner-advance-btn').addEventListener('click', () => {
+  setWeekDates(getRecommendedMonday());
+  showToast('Týden posunut');
 });
 
 // Add new fixed item
