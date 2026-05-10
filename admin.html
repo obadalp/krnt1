@@ -899,25 +899,32 @@ const PDF_FONTS = { loaded: false, regular: null, bold: null, italic: null, bold
 
 async function loadPdfFonts() {
   if (PDF_FONTS.loaded) return;
-  const base = 'https://cdn.jsdelivr.net/npm/roboto-fontface@0.10.0/fonts/roboto/';
-  const styles = {
-    regular:    'Roboto-Regular.ttf',
-    bold:       'Roboto-Bold.ttf',
-    italic:     'Roboto-Italic.ttf',
-    boldItalic: 'Roboto-BoldItalic.ttf',
-  };
-  for (const [key, file] of Object.entries(styles)) {
-    const resp = await fetch(base + file);
-    if (!resp.ok) throw new Error('Font ' + file + ' load failed');
-    const buffer = await resp.arrayBuffer();
-    const bytes = new Uint8Array(buffer);
-    let bin = '';
-    const chunk = 0x8000;
-    for (let i = 0; i < bytes.length; i += chunk) {
-      bin += String.fromCharCode.apply(null, bytes.subarray(i, i + chunk));
-    }
-    PDF_FONTS[key] = btoa(bin);
+
+  // Načteme pdfmake vfs_fonts.js — obsahuje Roboto Regular/Medium/Italic/MediumItalic
+  // jako base64 stringy připravené přímo pro jsPDF (bez fetch, bez CORS issues)
+  if (!window.pdfMake || !window.pdfMake.vfs) {
+    await new Promise((resolve, reject) => {
+      const script = document.createElement('script');
+      script.src = 'https://cdn.jsdelivr.net/npm/pdfmake@0.2.10/build/vfs_fonts.js';
+      script.onload = resolve;
+      script.onerror = () => reject(new Error('vfs_fonts.js load failed'));
+      document.head.appendChild(script);
+    });
   }
+
+  if (!window.pdfMake || !window.pdfMake.vfs) {
+    throw new Error('pdfMake vfs nedostupné');
+  }
+
+  PDF_FONTS.regular    = window.pdfMake.vfs['Roboto-Regular.ttf'];
+  PDF_FONTS.bold       = window.pdfMake.vfs['Roboto-Medium.ttf'];
+  PDF_FONTS.italic     = window.pdfMake.vfs['Roboto-Italic.ttf'];
+  PDF_FONTS.boldItalic = window.pdfMake.vfs['Roboto-MediumItalic.ttf'];
+
+  if (!PDF_FONTS.regular) {
+    throw new Error('Roboto fonty v pdfMake vfs nenalezeny');
+  }
+
   PDF_FONTS.loaded = true;
 }
 
