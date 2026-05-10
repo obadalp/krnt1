@@ -124,38 +124,40 @@
     font-style: normal;
     margin: 0 8px;
   }
-  /* TÝDENNÍ MENU — nukleární řešení: absolute + transform Y (html2canvas to nezvládne pokazit) */
+  /* TÝDENNÍ MENU — pevná výška + line-height trick pro 100% spolehlivé centrování */
   #pdf-render .pdf-day {
     position: relative;
     display: block;
-    padding: 24px 0;          /* odsazení nafoukne řádek přirozeně, žádná fixní výška */
+    height: 90px;             /* pevná výška řádku */
     border-bottom: 1px solid #e1e3e4;
   }
   #pdf-render .pdf-day:last-of-type { border-bottom: 0; }
-  /* Levý sloupec (den) — přitlučený absolutně na svislý střed */
+  /* Den — line-height = height = perfektně centrovaný text (klasický CSS trick) */
   #pdf-render .pdf-day > div:nth-child(1) {
     position: absolute;
     left: 0;
+    top: 0;
+    width: 100px;
+    height: 90px;
+    line-height: 90px;        /* line-height = height → vizuální střed bez transform */
+  }
+  /* Jídlo + popis — multi-line, takže transform centrování */
+  #pdf-render .pdf-day > div:nth-child(2) {
+    position: absolute;
+    left: 110px;
+    right: 100px;
     top: 50%;
     transform: translateY(-50%);
-    width: 100px;
-    margin: 0;
   }
-  /* Prostřední sloupec (jídlo) určuje přirozenou výšku řádku */
-  #pdf-render .pdf-day > div:nth-child(2) {
-    margin-left: 110px;
-    margin-right: 100px;
-    display: block;
-  }
-  /* Pravý sloupec (cena) — taky absolutně na svislý střed */
+  /* Cena — line-height trick, single line */
   #pdf-render .pdf-day > div:nth-child(3) {
     position: absolute;
     right: 0;
-    top: 50%;
-    transform: translateY(-50%);
+    top: 0;
     width: 90px;
+    height: 90px;
+    line-height: 90px;
     text-align: right;
-    margin: 0;
   }
   #pdf-render .pdf-day-label {
     font-family: 'Noto Serif', serif;
@@ -189,15 +191,16 @@
     display: inline-block;
     background: #ebe68d;
     color: #1e1d00;
-    font-family: 'Manrope', sans-serif;  /* JetBrains Mono v PDF rozbíjel výšku bubliny */
+    font-family: 'Manrope', sans-serif;
     font-size: 9px;
     font-weight: 800;
     letter-spacing: 0.1em;
-    padding: 3px 6px;
-    border-radius: 12px;
+    height: 16px;                         /* pevná výška bubliny */
+    line-height: 16px;                    /* line-height = height → text na pixelovém středu bubliny */
+    padding: 0 8px;                       /* žádný vertikální padding (rozbíjel by line-height trick) */
+    border-radius: 8px;
     margin-left: 8px;
-    position: relative;
-    top: -2px;                            /* vizuální zarovnání k názvu jídla */
+    vertical-align: middle;               /* na osu s názvem jídla */
   }
   #pdf-render .pdf-fixed {
     margin-top: 26px;
@@ -214,28 +217,31 @@
     margin: 0 0 16px;
     text-align: center;
   }
-  /* STÁLÁ NABÍDKA — stejný princip: absolute + transform pro cenu, jídlo určí výšku */
+  /* STÁLÁ NABÍDKA — pevná výška + line-height trick pro cenu */
   #pdf-render .pdf-fixed-row {
     position: relative;
     display: block;
-    padding: 16px 0;
+    height: 70px;
     border-bottom: 1px dotted #c0c7d0;
   }
   #pdf-render .pdf-fixed-row:last-child { border-bottom: 0; }
-  /* Jídlo — určuje výšku */
+  /* Jídlo + popis — multi-line, transform centrování */
   #pdf-render .pdf-fixed-row > div:nth-child(1) {
-    margin-right: 100px;
-    display: block;
+    position: absolute;
+    left: 0;
+    right: 100px;
+    top: 50%;
+    transform: translateY(-50%);
   }
-  /* Cena — absolutně na svislý střed */
+  /* Cena — line-height trick */
   #pdf-render .pdf-fixed-row > div:nth-child(2) {
     position: absolute;
     right: 0;
-    top: 50%;
-    transform: translateY(-50%);
+    top: 0;
     width: 90px;
+    height: 70px;
+    line-height: 70px;
     text-align: right;
-    margin: 0;
   }
   #pdf-render .pdf-fixed-row:last-child { border-bottom: 0; }
   #pdf-render .pdf-fixed-name {
