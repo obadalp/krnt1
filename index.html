@@ -551,6 +551,52 @@
     .weekly-day-price { justify-self: start; }
   }
 
+  /* Fixed items (A k tomu pořád) — stejný styl jako .weekly-day, bez sloupce dne */
+  .weekly-fixed {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    column-gap: 24px;
+    align-items: center;
+    padding: 22px 24px;
+    background: #ffffff;
+    border: 1px solid rgba(192,199,208,0.4);
+    border-radius: 12px;
+    transition: all 0.2s;
+    min-height: 96px;
+  }
+  .weekly-fixed:hover {
+    border-color: rgba(0,71,110,0.3);
+    transform: translateY(-1px);
+    box-shadow: 0 8px 24px rgba(0,71,110,0.06);
+  }
+  .weekly-fixed-name {
+    font-family: 'Noto Serif', serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: #00476e;
+    margin-bottom: 4px;
+  }
+  .weekly-fixed-desc {
+    font-size: 14px;
+    color: #40474f;
+    line-height: 1.5;
+  }
+  .weekly-fixed-price {
+    font-family: 'Noto Serif', serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: #a03f29;
+    white-space: nowrap;
+  }
+  @media (max-width: 640px) {
+    .weekly-fixed {
+      grid-template-columns: 1fr;
+      gap: 6px;
+      padding: 18px 20px;
+    }
+    .weekly-fixed-price { justify-self: start; }
+  }
+
   /* Social icons */
   .social-link {
     display: inline-flex;
@@ -1486,17 +1532,16 @@
     </div>
   </section>
 
-  <!-- Vegetarian alternative + fixed items -->
-  <section class="max-w-7xl mx-auto px-6 md:px-8 mb-16 md:mb-24">
-    <div class="grid md:grid-cols-2 gap-6">
-      <div class="bg-surface-container-low p-5 md:p-6 rounded-xl border border-outline-variant/20">
-        <h4 class="font-serif text-lg text-primary mb-2">Vegetariánská varianta</h4>
-        <p id="weekly-vege" class="text-sm text-on-surface-variant leading-relaxed">Každý den k&nbsp;dispozici, stačí říct obsluze.</p>
+  <!-- Fixed items section ("A k tomu pořád") -->
+  <section id="weekly-fixed-section" class="max-w-7xl mx-auto px-6 md:px-8 mb-16 md:mb-24">
+    <div class="flex items-end justify-between gap-4 mb-6 md:mb-8 flex-wrap">
+      <div>
+        <span class="eyebrow-mono mb-2 block" style="color:#636116;">Po celý týden</span>
+        <h2 class="text-3xl md:text-4xl font-serif text-primary">A k&nbsp;tomu pořád</h2>
       </div>
-      <div class="bg-surface-container-low p-5 md:p-6 rounded-xl border border-outline-variant/20">
-        <h4 class="font-serif text-lg text-primary mb-2">A k&nbsp;tomu pořád</h4>
-        <p class="text-sm text-on-surface-variant leading-relaxed">Gyros kotopulo, gyros chirinos, kalamary nebo salát gyros — vždy za&nbsp;179&nbsp;Kč.</p>
-      </div>
+    </div>
+    <div id="weekly-fixed-items" class="space-y-3 md:space-y-4">
+      <!-- Filled by JS -->
     </div>
   </section>
 
@@ -1965,7 +2010,8 @@ async function renderWeeklyPanel() {
   const container = document.getElementById('weekly-days');
   const weekLabelEl = document.getElementById('weekly-week-label');
   const updatedEl = document.getElementById('weekly-updated');
-  const vegeEl = document.getElementById('weekly-vege');
+  const fixedSection = document.getElementById('weekly-fixed-section');
+  const fixedContainer = document.getElementById('weekly-fixed-items');
   if (!container) return;
 
   const data = await loadWeeklyMenu();
@@ -1973,6 +2019,8 @@ async function renderWeeklyPanel() {
     container.innerHTML = '<p class="text-on-surface-variant text-center py-8">Týdenní menu nelze načíst. Zkuste to později.</p>';
     return;
   }
+
+  const escape = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 
   // Week label
   if (weekLabelEl && data.week && data.week.label) {
@@ -1987,17 +2035,11 @@ async function renderWeeklyPanel() {
     }
   }
 
-  // Vegetarian alternative
-  if (vegeEl && data.vegetarianAlternative) {
-    vegeEl.textContent = data.vegetarianAlternative;
-  }
-
   // Render day cards
   const todayWeekday = new Date().getDay();
   container.innerHTML = data.days.map(d => {
     const isToday = d.weekday === todayWeekday;
     const vegeBadge = d.vegetarian ? '<span class="weekly-day-veg">VEGE</span>' : '';
-    const escape = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
     return `
       <div class="weekly-day${isToday ? ' is-today' : ''}">
         <div class="weekly-day-name">${escape(d.name)}</div>
@@ -2009,6 +2051,24 @@ async function renderWeeklyPanel() {
       </div>
     `;
   }).join('');
+
+  // Render fixed items ("A k tomu pořád")
+  if (fixedContainer && fixedSection) {
+    if (data.fixedItems && data.fixedItems.length > 0) {
+      fixedSection.style.display = '';
+      fixedContainer.innerHTML = data.fixedItems.map(it => `
+        <div class="weekly-fixed">
+          <div>
+            <div class="weekly-fixed-name">${escape(it.name)}</div>
+            <div class="weekly-fixed-desc">${escape(it.description)}</div>
+          </div>
+          <div class="weekly-fixed-price">${it.price}&nbsp;Kč</div>
+        </div>
+      `).join('');
+    } else {
+      fixedSection.style.display = 'none';
+    }
+  }
 
   weeklyRendered = true;
 }
