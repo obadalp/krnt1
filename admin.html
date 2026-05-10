@@ -124,22 +124,21 @@
     font-style: normal;
     margin: 0 8px;
   }
-  /* TÝDENNÍ MENU — display:table pro neprůstřelné centrování v html2canvas */
+  /* TÝDENNÍ MENU — striktní flexbox bez paddingů (html2canvas-friendly) */
   #pdf-render .pdf-day {
-    display: table;
-    width: 100%;
-    height: 90px;            /* pevná výška → všechny řádky stejné */
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    height: 90px;
     border-bottom: 1px solid #e1e3e4;
-    table-layout: fixed;     /* respektuje šířky sloupců */
+    padding: 0;              /* zásadní: bez paddingu html2canvas trefí přesně střed */
+    margin: 0;
+    box-sizing: border-box;
   }
   #pdf-render .pdf-day:last-of-type { border-bottom: 0; }
-  #pdf-render .pdf-day > div {
-    display: table-cell;
-    vertical-align: middle;  /* milimetrově přesný střed v PDF */
-  }
-  #pdf-render .pdf-day > div:nth-child(1) { width: 100px; }
-  #pdf-render .pdf-day > div:nth-child(2) { width: auto; padding: 0 22px; }
-  #pdf-render .pdf-day > div:nth-child(3) { width: 90px; text-align: right; }
+  #pdf-render .pdf-day > div:nth-child(1) { width: 100px; flex-shrink: 0; }
+  #pdf-render .pdf-day > div:nth-child(2) { flex-grow: 1; padding: 0 20px; }
+  #pdf-render .pdf-day > div:nth-child(3) { width: 90px; flex-shrink: 0; text-align: right; }
   #pdf-render .pdf-day-label {
     font-family: 'Noto Serif', serif;
     font-size: 18px;
@@ -172,15 +171,15 @@
     display: inline-block;
     background: #ebe68d;
     color: #1e1d00;
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Manrope', sans-serif;  /* JetBrains Mono v PDF rozbíjel výšku bubliny */
     font-size: 9px;
-    font-weight: 700;
-    letter-spacing: 0.12em;
-    padding: 4px 8px 3px;       /* upravený padding pro lepší vycentrování textu v bublině */
-    border-radius: 99px;
-    line-height: normal;         /* zruší uskakování textu mimo bublinu (html2canvas neumí line-height: 1) */
-    margin-left: 10px;
-    vertical-align: middle;      /* srovná štítek do roviny s názvem jídla */
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    padding: 3px 7px;
+    border-radius: 12px;
+    margin-left: 8px;
+    position: relative;
+    top: -2px;                            /* vizuální zarovnání k názvu jídla */
   }
   #pdf-render .pdf-fixed {
     margin-top: 26px;
@@ -197,20 +196,20 @@
     margin: 0 0 16px;
     text-align: center;
   }
-  /* STÁLÁ NABÍDKA — display:table pro neprůstřelné centrování */
+  /* STÁLÁ NABÍDKA — striktní flexbox bez paddingů */
   #pdf-render .pdf-fixed-row {
-    display: table;
-    width: 100%;
-    height: 70px;            /* pevná výška → všechny položky stejné */
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    height: 70px;
     border-bottom: 1px dotted #c0c7d0;
-    table-layout: fixed;
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
   }
-  #pdf-render .pdf-fixed-row > div {
-    display: table-cell;
-    vertical-align: middle;
-  }
-  #pdf-render .pdf-fixed-row > div:nth-child(1) { width: auto; padding-right: 22px; }
-  #pdf-render .pdf-fixed-row > div:nth-child(2) { width: 90px; text-align: right; }
+  #pdf-render .pdf-fixed-row:last-child { border-bottom: 0; }
+  #pdf-render .pdf-fixed-row > div:nth-child(1) { flex-grow: 1; padding-right: 20px; }
+  #pdf-render .pdf-fixed-row > div:nth-child(2) { width: 90px; flex-shrink: 0; text-align: right; }
   #pdf-render .pdf-fixed-row:last-child { border-bottom: 0; }
   #pdf-render .pdf-fixed-name {
     font-family: 'Noto Serif', serif;
