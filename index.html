@@ -464,9 +464,9 @@
   .weekly-day {
     display: grid;
     grid-template-columns: 110px 1fr auto;
-    gap: 24px;
+    column-gap: 24px;
     align-items: center;
-    padding: 20px 24px;
+    padding: 22px 24px;
     background: #ffffff;
     border: 1px solid rgba(192,199,208,0.4);
     border-radius: 12px;
@@ -513,15 +513,15 @@
     font-weight: 700;
     color: #191c1d;
     margin-bottom: 4px;
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 10px;
+    line-height: 1.25;
   }
   .weekly-day-desc {
     font-size: 14px;
     color: #40474f;
     line-height: 1.5;
+    min-height: 42px; /* rezervuje 2 řádky → všechny weekly-day mají stejnou výšku */
+    max-height: 42px;
+    overflow: hidden;
   }
   .weekly-day-price {
     font-family: 'Noto Serif', serif;
@@ -538,11 +538,11 @@
     font-size: 10px;
     font-weight: 700;
     letter-spacing: 0.14em;
-    padding: 3px 9px 2px;
+    padding: 3px 9px;
     border-radius: 999px;
     line-height: 1;
-    position: relative;
-    top: -2px;
+    margin-left: 10px;
+    vertical-align: 4px;
   }
   @media (max-width: 640px) {
     .weekly-day {
