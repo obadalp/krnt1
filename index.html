@@ -427,6 +427,127 @@
   /* Hidden filter state */
   .menu-item.hidden-filter { display: none !important; }
 
+  /* Menu tabs (Stálá / Týdenní) */
+  .menu-tabs {
+    display: inline-flex;
+    background: #f3f4f5;
+    border: 1px solid rgba(192,199,208,0.5);
+    border-radius: 999px;
+    padding: 4px;
+    gap: 2px;
+  }
+  .menu-tab {
+    font-family: 'Manrope', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    padding: 10px 22px;
+    border-radius: 999px;
+    border: 0;
+    background: transparent;
+    color: #40474f;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .menu-tab:hover { color: #00476e; }
+  .menu-tab.active {
+    background: #00476e;
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(0,71,110,0.2);
+  }
+  @media (max-width: 480px) {
+    .menu-tab { padding: 9px 16px; font-size: 12px; }
+  }
+
+  /* Weekly menu day cards */
+  .weekly-day {
+    display: grid;
+    grid-template-columns: 110px 1fr auto;
+    gap: 24px;
+    align-items: baseline;
+    padding: 20px 24px;
+    background: #ffffff;
+    border: 1px solid rgba(192,199,208,0.4);
+    border-radius: 12px;
+    transition: all 0.2s;
+  }
+  .weekly-day:hover {
+    border-color: rgba(0,71,110,0.3);
+    transform: translateY(-1px);
+    box-shadow: 0 8px 24px rgba(0,71,110,0.06);
+  }
+  .weekly-day.is-today {
+    border-color: #00476e;
+    background: linear-gradient(to right, rgba(0,71,110,0.04), transparent 40%);
+    box-shadow: 0 8px 24px rgba(0,71,110,0.1);
+  }
+  .weekly-day.is-today::before {
+    content: 'DNES';
+    position: absolute;
+    top: -10px; left: 24px;
+    background: #ebe68d;
+    color: #1e1d00;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 999px;
+  }
+  .weekly-day { position: relative; }
+  .weekly-day-name {
+    font-family: 'Noto Serif', serif;
+    font-style: italic;
+    font-size: 22px;
+    font-weight: 400;
+    color: #00476e;
+  }
+  .weekly-day.is-today .weekly-day-name {
+    font-weight: 700;
+    font-style: normal;
+  }
+  .weekly-day-dish {
+    font-family: 'Noto Serif', serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: #191c1d;
+    margin-bottom: 4px;
+  }
+  .weekly-day-desc {
+    font-size: 14px;
+    color: #40474f;
+    line-height: 1.5;
+  }
+  .weekly-day-price {
+    font-family: 'Noto Serif', serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: #a03f29;
+    white-space: nowrap;
+  }
+  .weekly-day-veg {
+    display: inline-block;
+    margin-left: 8px;
+    background: #ebe68d;
+    color: #1e1d00;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    padding: 2px 7px;
+    border-radius: 999px;
+    vertical-align: middle;
+  }
+  @media (max-width: 640px) {
+    .weekly-day {
+      grid-template-columns: 1fr;
+      gap: 6px;
+      padding: 18px 20px;
+    }
+    .weekly-day-price { justify-self: start; }
+  }
+
   /* Social icons */
   .social-link {
     display: inline-flex;
@@ -873,17 +994,25 @@
 <div class="page" id="page-menu">
 
   <section class="pt-16 md:pt-24 pb-6 max-w-7xl mx-auto px-6 md:px-12">
-    <header class="mb-10 md:mb-14 text-center">
+    <header class="mb-8 md:mb-10 text-center">
       <span class="eyebrow-mono block mb-4">Jídelní lístek</span>
       <h1 class="text-4xl md:text-7xl font-serif text-primary tracking-tight mb-6">Naše menu</h1>
       <p class="max-w-2xl mx-auto text-base md:text-lg text-on-surface-variant font-light leading-relaxed">
-        Kompletní stálá nabídka. Denní menu je navíc a&nbsp;visí u&nbsp;vchodu, mění se podle toho, co je zrovna na trhu.
+        Stálá nabídka, na&nbsp;kterou se&nbsp;můžete spolehnout, plus týdenní polední menu, které měníme každou neděli podle toho, co je zrovna na&nbsp;trhu.
       </p>
     </header>
+
+    <!-- Menu tabs: Stálá / Týdenní -->
+    <div class="flex justify-center mb-6 md:mb-10">
+      <div class="menu-tabs" role="tablist" aria-label="Přepínač menu">
+        <button class="menu-tab active" data-menu-tab="permanent" role="tab" aria-selected="true">Stálá nabídka</button>
+        <button class="menu-tab" data-menu-tab="weekly" role="tab" aria-selected="false">Týdenní menu</button>
+      </div>
+    </div>
   </section>
 
-  <!-- FILTER BAR -->
-  <section class="sticky top-16 md:top-20 z-30 bg-background/92 backdrop-blur border-b border-outline-variant/30 py-3 md:py-4 mb-8 md:mb-12">
+  <!-- FILTER BAR (jen pro Stálá nabídka) -->
+  <section id="filter-bar" class="sticky top-16 md:top-20 z-30 bg-background/92 backdrop-blur border-b border-outline-variant/30 py-3 md:py-4 mb-8 md:mb-12">
     <div class="max-w-7xl mx-auto px-6 md:px-8 flex flex-wrap gap-2 items-center">
       <span class="eyebrow-mono hidden sm:inline mr-1">Filtr:</span>
       <button class="filter-chip active" data-type="cat" data-filter="all">Vše</button>
@@ -897,6 +1026,9 @@
       <button class="filter-chip diet" data-type="diet" data-filter="deti">Pro děti</button>
     </div>
   </section>
+
+  <!-- PERMANENT MENU PANEL -->
+  <div id="permanent-panel" role="tabpanel" aria-labelledby="permanent-tab">
 
   <!-- Orektika -->
   <section class="max-w-7xl mx-auto px-6 md:px-8 mb-16 md:mb-24 menu-category" data-category="predkrmy">
@@ -1295,27 +1427,64 @@
     </div>
   </section>
 
-  <!-- Denni menu info box -->
-  <section class="max-w-7xl mx-auto px-6 md:px-8 mb-16 md:mb-24">
-    <div class="bg-primary text-on-primary rounded-xl p-6 md:p-10 relative overflow-hidden">
-      <div class="absolute top-0 right-0 w-64 h-64 meander-pattern opacity-20"></div>
-      <div class="relative z-10 grid md:grid-cols-3 gap-6 md:gap-10 items-center">
-        <div class="md:col-span-2">
-          <span class="eyebrow-mono mb-3 block" style="color:#ebe68d;">Po až Pá · 10:30 – 14:00</span>
-          <h3 class="text-2xl md:text-4xl font-serif mb-4 leading-tight">Denní menu za&nbsp;179&nbsp;Kč</h3>
-          <p class="text-on-primary/85 text-sm md:text-base leading-relaxed">
-            Každý pracovní den polední menu s&nbsp;polévkou v&nbsp;ceně. Pondělí Halloumi na&nbsp;grilu, úterý Mousaka, středa Bujurdi, čtvrtek Tygania mix (kuřecí a&nbsp;vepřové kousky), pátek Gyros burger. Plus stálá nabídka: gyros kotopulo, gyros chirinos, kalamary, salát gyros. Vegetariánská varianta k&nbsp;dispozici.
-          </p>
-        </div>
-        <div class="text-center md:text-right">
-          <div class="inline-block bg-tertiary-fixed text-on-tertiary-fixed px-6 py-4 rounded-lg">
-            <div class="text-3xl md:text-4xl font-serif font-bold">179 Kč</div>
-            <div class="text-xs uppercase tracking-widest mt-1">Polévka v&nbsp;ceně</div>
+  </div>
+  <!-- /PERMANENT PANEL -->
+
+  <!-- WEEKLY MENU PANEL -->
+  <div id="weekly-panel" role="tabpanel" aria-labelledby="weekly-tab" hidden>
+
+    <!-- Denni menu info box (header) -->
+    <section class="max-w-7xl mx-auto px-6 md:px-8 mb-10 md:mb-12">
+      <div class="bg-primary text-on-primary rounded-xl p-6 md:p-10 relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-64 h-64 meander-pattern opacity-20"></div>
+        <div class="relative z-10 grid md:grid-cols-3 gap-6 md:gap-10 items-center">
+          <div class="md:col-span-2">
+            <span class="eyebrow-mono mb-3 block" style="color:#ebe68d;">Po až Pá · 10:30 – 14:00</span>
+            <h3 class="text-2xl md:text-4xl font-serif mb-4 leading-tight">Denní menu za&nbsp;179&nbsp;Kč</h3>
+            <p id="weekly-info" class="text-on-primary/85 text-sm md:text-base leading-relaxed">
+              Každý pracovní den polední menu s&nbsp;polévkou v&nbsp;ceně. Vegetariánská varianta k&nbsp;dispozici, alergeny na&nbsp;vyžádání u&nbsp;obsluhy.
+            </p>
+          </div>
+          <div class="text-center md:text-right">
+            <div class="inline-block bg-tertiary-fixed text-on-tertiary-fixed px-6 py-4 rounded-lg">
+              <div class="text-3xl md:text-4xl font-serif font-bold">179 Kč</div>
+              <div class="text-xs uppercase tracking-widest mt-1">Polévka v&nbsp;ceně</div>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  </section>
+    </section>
+
+    <!-- Days list rendered by JS from data/weekly-menu.json or localStorage -->
+    <section class="max-w-7xl mx-auto px-6 md:px-8 mb-12 md:mb-16">
+      <div class="flex items-end justify-between gap-4 mb-6 md:mb-8 flex-wrap">
+        <div>
+          <span class="eyebrow-mono mb-2 block" style="color:#636116;">Tento týden</span>
+          <h2 class="text-3xl md:text-4xl font-serif text-primary" id="weekly-week-label">Polední menu Po–Pá</h2>
+        </div>
+        <span id="weekly-updated" class="text-xs text-on-surface-variant italic"></span>
+      </div>
+      <div id="weekly-days" class="space-y-3 md:space-y-4">
+        <!-- Filled by JS -->
+      </div>
+    </section>
+
+    <!-- Vegetarian alternative + fixed items as small footer -->
+    <section class="max-w-7xl mx-auto px-6 md:px-8 mb-16 md:mb-24">
+      <div class="grid md:grid-cols-2 gap-6">
+        <div class="bg-surface-container-low p-5 md:p-6 rounded-xl border border-outline-variant/20">
+          <h4 class="font-serif text-lg text-primary mb-2">Vegetariánská varianta</h4>
+          <p id="weekly-vege" class="text-sm text-on-surface-variant leading-relaxed">Každý den k&nbsp;dispozici, stačí říct obsluze.</p>
+        </div>
+        <div class="bg-surface-container-low p-5 md:p-6 rounded-xl border border-outline-variant/20">
+          <h4 class="font-serif text-lg text-primary mb-2">A k&nbsp;tomu pořád</h4>
+          <p class="text-sm text-on-surface-variant leading-relaxed">Gyros kotopulo, gyros chirinos, kalamary nebo salát gyros — vždy za&nbsp;179&nbsp;Kč.</p>
+        </div>
+      </div>
+    </section>
+
+  </div>
+  <!-- /WEEKLY PANEL -->
 
   <!-- Legenda - obsolete but kept for structure: simplified note -->
   <section class="max-w-7xl mx-auto px-6 md:px-8 pb-16 md:pb-24">
@@ -1726,31 +1895,34 @@ function go(page) {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-// Daily menu highlight — fetched from data/weekly-menu.json or admin localStorage
+// ============================================================
+// SHARED weekly-menu data loader (used by homepage + menu page)
+// ============================================================
+const WEEKLY_STORAGE_KEY = 'krnt-weekly-menu';
+const DAY_NAMES = ['neděle', 'pondělí', 'úterý', 'středa', 'čtvrtek', 'pátek', 'sobota'];
+
+async function loadWeeklyMenu() {
+  // Admin localStorage takes priority (Marcela's recent edits)
+  try {
+    const stored = localStorage.getItem(WEEKLY_STORAGE_KEY);
+    if (stored) return JSON.parse(stored);
+  } catch(e) {}
+  // Fall back to JSON file (committed version)
+  try {
+    const r = await fetch('data/weekly-menu.json', { cache: 'no-store' });
+    if (r.ok) return await r.json();
+  } catch(e) {}
+  return null;
+}
+
+// Daily menu highlight on Home — auto-update based on current weekday
 (async function() {
   const badge = document.getElementById('daily-badge');
   const name = document.getElementById('daily-name');
   const desc = document.getElementById('daily-desc');
   if (!badge || !name || !desc) return;
 
-  const STORAGE_KEY = 'krnt-weekly-menu';
-  const DAY_NAMES = ['neděle', 'pondělí', 'úterý', 'středa', 'čtvrtek', 'pátek', 'sobota'];
-
-  async function loadMenu() {
-    // Admin localStorage takes priority (Marcela's recent edits)
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) return JSON.parse(stored);
-    } catch(e) {}
-    // Fall back to JSON file (committed version)
-    try {
-      const r = await fetch('data/weekly-menu.json', { cache: 'no-store' });
-      if (r.ok) return await r.json();
-    } catch(e) {}
-    return null;
-  }
-
-  const data = await loadMenu();
+  const data = await loadWeeklyMenu();
   const todayWeekday = new Date().getDay(); // 0=Sun..6=Sat
 
   // Weekend
@@ -1778,6 +1950,91 @@ function go(page) {
   name.textContent = 'Polední menu';
   desc.innerHTML = 'Aktuální polední menu najdete u&nbsp;vchodu nebo se zeptejte obsluhy.';
 })();
+
+// ============================================================
+// Menu page TABS (Stálá nabídka / Týdenní menu)
+// ============================================================
+(function() {
+  const tabs = document.querySelectorAll('.menu-tab');
+  const permanentPanel = document.getElementById('permanent-panel');
+  const weeklyPanel = document.getElementById('weekly-panel');
+  const filterBar = document.getElementById('filter-bar');
+  if (!tabs.length || !permanentPanel || !weeklyPanel) return;
+
+  function setTab(tabName) {
+    tabs.forEach(t => {
+      const isActive = t.dataset.menuTab === tabName;
+      t.classList.toggle('active', isActive);
+      t.setAttribute('aria-selected', String(isActive));
+    });
+    if (tabName === 'permanent') {
+      permanentPanel.hidden = false;
+      weeklyPanel.hidden = true;
+      if (filterBar) filterBar.style.display = '';
+    } else {
+      permanentPanel.hidden = true;
+      weeklyPanel.hidden = false;
+      if (filterBar) filterBar.style.display = 'none';
+      renderWeeklyPanel();
+    }
+  }
+
+  tabs.forEach(t => t.addEventListener('click', () => setTab(t.dataset.menuTab)));
+})();
+
+// Render Týdenní menu panel (called when tab switched)
+let weeklyRendered = false;
+async function renderWeeklyPanel() {
+  const container = document.getElementById('weekly-days');
+  const weekLabelEl = document.getElementById('weekly-week-label');
+  const updatedEl = document.getElementById('weekly-updated');
+  const vegeEl = document.getElementById('weekly-vege');
+  if (!container) return;
+
+  const data = await loadWeeklyMenu();
+  if (!data || !data.days) {
+    container.innerHTML = '<p class="text-on-surface-variant text-center py-8">Týdenní menu nelze načíst. Zkuste to později.</p>';
+    return;
+  }
+
+  // Week label
+  if (weekLabelEl && data.week && data.week.label) {
+    weekLabelEl.textContent = 'Polední menu · ' + data.week.label;
+  }
+
+  // Updated info
+  if (updatedEl && data.updatedAt) {
+    const d = new Date(data.updatedAt);
+    if (!isNaN(d)) {
+      updatedEl.textContent = 'Aktualizováno ' + d.toLocaleDateString('cs-CZ', { day: 'numeric', month: 'long' });
+    }
+  }
+
+  // Vegetarian alternative
+  if (vegeEl && data.vegetarianAlternative) {
+    vegeEl.textContent = data.vegetarianAlternative;
+  }
+
+  // Render day cards
+  const todayWeekday = new Date().getDay();
+  container.innerHTML = data.days.map(d => {
+    const isToday = d.weekday === todayWeekday;
+    const vegeBadge = d.vegetarian ? '<span class="weekly-day-veg">VEGE</span>' : '';
+    const escape = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    return `
+      <div class="weekly-day${isToday ? ' is-today' : ''}">
+        <div class="weekly-day-name">${escape(d.name)}</div>
+        <div>
+          <div class="weekly-day-dish">${escape(d.dish)}${vegeBadge}</div>
+          <div class="weekly-day-desc">${escape(d.description)}</div>
+        </div>
+        <div class="weekly-day-price">${d.price}&nbsp;Kč</div>
+      </div>
+    `;
+  }).join('');
+
+  weeklyRendered = true;
+}
 
 // Mobile CTA visibility on scroll
 (function() {
