@@ -60,13 +60,13 @@
     color: #191c1d;
   }
   #pdf-render .pdf-inner {
-    padding: 56px 64px;
+    padding: 44px 56px 36px;
   }
   #pdf-render .pdf-header {
     display: flex; justify-content: space-between; align-items: flex-end;
     border-bottom: 2px solid #00476e;
-    padding-bottom: 20px;
-    margin-bottom: 36px;
+    padding-bottom: 16px;
+    margin-bottom: 28px;
   }
   #pdf-render .pdf-brand {
     font-family: 'Noto Serif', serif;
@@ -94,22 +94,22 @@
   }
   #pdf-render h1.pdf-title {
     font-family: 'Noto Serif', serif;
-    font-size: 36px;
+    font-size: 32px;
     color: #00476e;
-    margin: 0 0 6px;
+    margin: 0 0 4px;
     line-height: 1;
   }
   #pdf-render .pdf-subtitle {
-    font-size: 13px;
+    font-size: 12px;
     color: #40474f;
-    margin-bottom: 28px;
+    margin-bottom: 20px;
     letter-spacing: 0.02em;
   }
   #pdf-render .pdf-day {
     display: grid;
     grid-template-columns: 110px 1fr 80px;
     gap: 20px;
-    padding: 16px 0;
+    padding: 12px 0;
     border-bottom: 1px solid #e1e3e4;
     align-items: baseline;
   }
@@ -153,8 +153,8 @@
     vertical-align: middle;
   }
   #pdf-render .pdf-fixed {
-    margin-top: 32px;
-    padding-top: 24px;
+    margin-top: 22px;
+    padding-top: 18px;
   }
   #pdf-render .pdf-fixed-title {
     font-family: 'JetBrains Mono', monospace;
@@ -163,13 +163,13 @@
     text-transform: uppercase;
     color: #636116;
     font-weight: 600;
-    margin-bottom: 16px;
+    margin-bottom: 12px;
   }
   #pdf-render .pdf-fixed-row {
     display: grid;
     grid-template-columns: 1fr 80px;
     gap: 20px;
-    padding: 10px 0;
+    padding: 8px 0;
     border-bottom: 1px dotted #c0c7d0;
     align-items: baseline;
   }
@@ -186,8 +186,8 @@
     margin-top: 2px;
   }
   #pdf-render .pdf-footer {
-    margin-top: 36px;
-    padding-top: 16px;
+    margin-top: 24px;
+    padding-top: 14px;
     border-top: 1px solid #e1e3e4;
     display: flex;
     justify-content: space-between;
@@ -377,11 +377,15 @@
   <div class="mt-8 bg-white rounded-xl border border-outline-variant/40 p-5 md:p-6">
     <div class="flex items-baseline justify-between mb-4 flex-wrap gap-2">
       <h3 class="font-headline text-lg text-primary">Stálá nabídka po celý týden</h3>
-      <span class="text-xs text-on-surface-variant">Položky, které jsou k dispozici každý den vedle týdenního menu</span>
+      <span class="text-xs text-on-surface-variant">Položky k dispozici každý den vedle týdenního menu</span>
     </div>
     <div id="fixed-items-form" class="space-y-3">
       <!-- Filled by JS -->
     </div>
+    <button type="button" id="add-fixed-btn" class="mt-4 inline-flex items-center gap-2 text-sm text-primary hover:text-secondary transition-colors font-semibold">
+      <span class="material-symbols-outlined" style="font-size:18px;">add_circle</span>
+      Přidat položku
+    </button>
   </div>
 
   <!-- Extras -->
@@ -453,7 +457,7 @@
 
     <div id="pdf-days"></div>
 
-    <div class="pdf-fixed">
+    <div class="pdf-fixed" id="pdf-fixed-section">
       <div class="pdf-fixed-title">Stálá nabídka po celý týden</div>
       <div id="pdf-fixed-items"></div>
     </div>
@@ -641,28 +645,41 @@ function populateForm(data) {
   const fixedForm = document.getElementById('fixed-items-form');
   fixedForm.innerHTML = '';
   const fixedToRender = (data.fixedItems && data.fixedItems.length) ? data.fixedItems : DEFAULT_DATA.fixedItems;
-  fixedToRender.forEach((it, i) => {
-    const row = document.createElement('div');
-    row.className = 'border border-outline-variant/40 rounded-lg p-4';
-    row.dataset.index = i;
-    row.innerHTML = `
-      <div class="grid md:grid-cols-[1fr_1fr_120px] gap-4 items-start">
-        <div>
-          <span class="field-label block mb-1">Název</span>
-          <input type="text" data-field="name" class="field font-headline text-primary" value="${escapeHtml(it.name)}"/>
-        </div>
-        <div>
-          <span class="field-label block mb-1">Popis</span>
-          <input type="text" data-field="description" class="field text-sm" value="${escapeHtml(it.description)}"/>
-        </div>
-        <div>
-          <span class="field-label block mb-1">Cena (Kč)</span>
-          <input type="number" data-field="price" class="field text-secondary font-bold" value="${it.price}"/>
-        </div>
+  fixedToRender.forEach((it) => addFixedItemRow(it));
+}
+
+function addFixedItemRow(item = { name: '', description: '', price: 179 }) {
+  const fixedForm = document.getElementById('fixed-items-form');
+  const row = document.createElement('div');
+  row.className = 'border border-outline-variant/40 rounded-lg p-4 relative group';
+  row.innerHTML = `
+    <div class="grid md:grid-cols-[1fr_1fr_120px_auto] gap-4 items-start">
+      <div>
+        <span class="field-label block mb-1">Název</span>
+        <input type="text" data-field="name" class="field font-headline text-primary" value="${escapeHtml(item.name)}"/>
       </div>
-    `;
-    fixedForm.appendChild(row);
+      <div>
+        <span class="field-label block mb-1">Popis</span>
+        <input type="text" data-field="description" class="field text-sm" value="${escapeHtml(item.description)}"/>
+      </div>
+      <div>
+        <span class="field-label block mb-1">Cena (Kč)</span>
+        <input type="number" data-field="price" class="field text-secondary font-bold" value="${item.price}"/>
+      </div>
+      <div class="md:pt-5">
+        <button type="button" class="remove-fixed-btn text-on-surface-variant hover:text-secondary transition-colors p-1" title="Odebrat položku">
+          <span class="material-symbols-outlined" style="font-size:22px;">delete</span>
+        </button>
+      </div>
+    </div>
+  `;
+  row.querySelector('.remove-fixed-btn').addEventListener('click', () => {
+    if (confirm(`Odebrat položku „${row.querySelector('[data-field="name"]').value || 'bez názvu'}"?`)) {
+      row.remove();
+    }
   });
+  fixedForm.appendChild(row);
+  return row;
 }
 
 function escapeHtml(s) {
@@ -754,6 +771,17 @@ document.getElementById('btn-next-week').addEventListener('click', () => {
   setWeekDates(addDays(getMondayOf(new Date()), 7));
 });
 
+// Add new fixed item
+document.getElementById('add-fixed-btn').addEventListener('click', () => {
+  const row = addFixedItemRow();
+  // Focus na name input nové položky
+  const nameInput = row.querySelector('[data-field="name"]');
+  if (nameInput) {
+    nameInput.focus();
+    row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+});
+
 // SAVE
 document.getElementById('save-btn').addEventListener('click', () => {
   const data = gatherData();
@@ -807,9 +835,18 @@ document.getElementById('download-pdf-btn').addEventListener('click', async () =
 
     const { jsPDF } = window.jspdf;
     const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-    const imgWidth = 210; // A4 width in mm
-    const imgHeight = (canvas.height * imgWidth) / canvas.width;
-    pdf.addImage(canvas.toDataURL('image/jpeg', 0.95), 'JPEG', 0, 0, imgWidth, imgHeight);
+    const pageWidth = 210;   // A4 in mm
+    const pageHeight = 297;  // A4 in mm
+    let imgWidth = pageWidth;
+    let imgHeight = (canvas.height * imgWidth) / canvas.width;
+    let xOffset = 0;
+    if (imgHeight > pageHeight) {
+      // Scale-to-fit: zmenšit aby se vešlo na jednu A4 (zachová poměr stran)
+      imgHeight = pageHeight;
+      imgWidth = (canvas.width * imgHeight) / canvas.height;
+      xOffset = (pageWidth - imgWidth) / 2;
+    }
+    pdf.addImage(canvas.toDataURL('image/jpeg', 0.95), 'JPEG', xOffset, 0, imgWidth, imgHeight);
 
     const safeLabel = (data.week.label || 'menu')
       .replace(/–/g, '-')
@@ -859,16 +896,22 @@ function renderPdfPreview(data) {
     </div>
   `).join('');
 
-  // Fixed items
-  document.getElementById('pdf-fixed-items').innerHTML = data.fixedItems.map(it => `
-    <div class="pdf-fixed-row">
-      <div>
-        <div class="pdf-fixed-name">${escapeHtml(it.name)}</div>
-        <div class="pdf-fixed-desc">${escapeHtml(it.description)}</div>
+  // Fixed items — celá sekce skrytá pokud žádné položky
+  const fixedSection = document.getElementById('pdf-fixed-section');
+  if (!data.fixedItems || data.fixedItems.length === 0) {
+    fixedSection.style.display = 'none';
+  } else {
+    fixedSection.style.display = 'block';
+    document.getElementById('pdf-fixed-items').innerHTML = data.fixedItems.map(it => `
+      <div class="pdf-fixed-row">
+        <div>
+          <div class="pdf-fixed-name">${escapeHtml(it.name)}</div>
+          <div class="pdf-fixed-desc">${escapeHtml(it.description)}</div>
+        </div>
+        <div class="pdf-price">${it.price} Kč</div>
       </div>
-      <div class="pdf-price">${it.price} Kč</div>
-    </div>
-  `).join('');
+    `).join('');
+  }
 }
 
 // Init
