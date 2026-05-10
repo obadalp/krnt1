@@ -128,9 +128,9 @@
     display: grid;
     grid-template-columns: 100px 1fr 90px;
     column-gap: 22px;
-    padding: 16px 0;
+    padding: 14px 0;
     border-bottom: 1px solid #e1e3e4;
-    align-items: start;
+    align-items: baseline;
   }
   #pdf-render .pdf-day:last-of-type { border-bottom: 0; }
   #pdf-render .pdf-day-label {
@@ -145,11 +145,10 @@
     color: #40474f;
     margin-top: 5px;
     line-height: 1.5;
-    /* rezervuje 2 řádky → všechny pdf-day mají stejnou výšku;
-       align-items: start na rodiči zajistí, že den a cena sedí nahoře u jídla */
-    min-height: 36px;
-    max-height: 36px;
+    /* každý popis přesně 1 řádek, přetečení → "..." */
+    white-space: nowrap;
     overflow: hidden;
+    text-overflow: ellipsis;
   }
   #pdf-render .pdf-price {
     text-align: right;
@@ -200,8 +199,7 @@
     column-gap: 22px;
     padding: 10px 0;
     border-bottom: 1px dotted #c0c7d0;
-    align-items: center;
-    min-height: 48px;
+    align-items: baseline;
   }
   #pdf-render .pdf-fixed-row:last-child { border-bottom: 0; }
   #pdf-render .pdf-fixed-name {
@@ -214,6 +212,10 @@
     font-size: 11px;
     color: #40474f;
     margin-top: 2px;
+    /* každý popis přesně 1 řádek, přetečení → "..." */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   #pdf-render .pdf-footer {
     margin-top: 24px;
