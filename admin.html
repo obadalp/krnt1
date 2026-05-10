@@ -92,24 +92,43 @@
     font-weight: 700;
     margin-top: 4px;
   }
+  #pdf-render .pdf-title-block {
+    text-align: center;
+    margin-bottom: 26px;
+  }
   #pdf-render h1.pdf-title {
     font-family: 'Noto Serif', serif;
     font-size: 32px;
     color: #00476e;
-    margin: 0 0 4px;
-    line-height: 1;
+    margin: 0 0 6px;
+    line-height: 1.05;
   }
   #pdf-render .pdf-subtitle {
-    font-size: 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: #636116;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    font-weight: 600;
+    margin: 0;
+  }
+  #pdf-render .pdf-notes {
+    font-size: 11px;
     color: #40474f;
-    margin-bottom: 20px;
-    letter-spacing: 0.02em;
+    font-style: italic;
+    margin-top: 10px;
+    line-height: 1.55;
+  }
+  #pdf-render .pdf-notes .sep {
+    color: #c0c7d0;
+    font-style: normal;
+    margin: 0 8px;
   }
   #pdf-render .pdf-day {
     display: grid;
-    grid-template-columns: 110px 1fr 80px;
-    gap: 20px;
-    padding: 12px 0;
+    grid-template-columns: 100px 1fr 90px;
+    gap: 22px;
+    padding: 13px 0;
     border-bottom: 1px solid #e1e3e4;
     align-items: baseline;
   }
@@ -167,8 +186,8 @@
   }
   #pdf-render .pdf-fixed-row {
     display: grid;
-    grid-template-columns: 1fr 80px;
-    gap: 20px;
+    grid-template-columns: 1fr 90px;
+    gap: 22px;
     padding: 8px 0;
     border-bottom: 1px dotted #c0c7d0;
     align-items: baseline;
@@ -200,32 +219,6 @@
     font-style: italic;
     color: #00476e;
     font-size: 13px;
-  }
-  #pdf-render .pdf-soup {
-    font-size: 11px;
-    color: #40474f;
-    font-style: italic;
-    margin-top: 16px;
-    padding: 10px 14px;
-    background: rgba(0,71,110,0.04);
-    border-left: 3px solid #ebe68d;
-  }
-  #pdf-render .pdf-vege-alt {
-    font-size: 11px;
-    color: #40474f;
-    margin-top: 10px;
-    padding: 10px 14px;
-    background: rgba(99,97,22,0.05);
-    border-left: 3px solid #636116;
-  }
-  #pdf-render .pdf-vege-alt strong {
-    color: #636116;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    font-size: 9px;
-    font-family: 'JetBrains Mono', monospace;
-    display: block;
-    margin-bottom: 3px;
   }
 
   /* Form styles */
@@ -452,20 +445,17 @@
       </div>
     </div>
 
-    <h1 class="pdf-title">Týdenní polední menu</h1>
-    <div class="pdf-subtitle">Po až Pá · 10:30 – 14:00 · vždy za 179 Kč</div>
+    <div class="pdf-title-block">
+      <h1 class="pdf-title">Týdenní polední menu</h1>
+      <div class="pdf-subtitle">Po až Pá · 10:30 – 14:00</div>
+      <div class="pdf-notes" id="pdf-notes"></div>
+    </div>
 
     <div id="pdf-days"></div>
 
     <div class="pdf-fixed" id="pdf-fixed-section">
       <div class="pdf-fixed-title">Stálá nabídka po celý týden</div>
       <div id="pdf-fixed-items"></div>
-    </div>
-
-    <div class="pdf-soup" id="pdf-soup">Polévka v ceně menu (dle nabídky).</div>
-    <div class="pdf-vege-alt" id="pdf-vege-alt" style="display:none;">
-      <strong>Vegetariánská alternativa</strong>
-      <span id="pdf-vege-alt-text"></span>
     </div>
 
     <div class="pdf-footer">
@@ -869,18 +859,19 @@ document.getElementById('download-pdf-btn').addEventListener('click', async () =
 
 function renderPdfPreview(data) {
   document.getElementById('pdf-week').textContent = data.week.label;
-  document.getElementById('pdf-soup').textContent = data.soupIncluded
-    ? 'Polévka v ceně menu (dle nabídky).'
-    : 'Polévka samostatně k objednání.';
 
-  // Vegetariánská alternativa
-  const vegeBox = document.getElementById('pdf-vege-alt');
+  // Notes řádek pod titulem (polévka + vegetariánská alternativa)
+  const notesEl = document.getElementById('pdf-notes');
+  const parts = [];
+  if (data.soupIncluded) parts.push('Polévka v&nbsp;ceně menu');
   const vegeText = (data.vegetarianAlternative || '').trim();
-  if (vegeText) {
-    document.getElementById('pdf-vege-alt-text').textContent = vegeText;
-    vegeBox.style.display = 'block';
+  if (vegeText) parts.push('Vegetariánská alternativa: ' + escapeHtml(vegeText));
+  if (parts.length === 0) {
+    notesEl.style.display = 'none';
+    notesEl.innerHTML = '';
   } else {
-    vegeBox.style.display = 'none';
+    notesEl.style.display = 'block';
+    notesEl.innerHTML = parts.join('<span class="sep">·</span>');
   }
 
   // Days
