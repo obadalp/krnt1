@@ -210,6 +210,23 @@
     background: rgba(0,71,110,0.04);
     border-left: 3px solid #ebe68d;
   }
+  #pdf-render .pdf-vege-alt {
+    font-size: 11px;
+    color: #40474f;
+    margin-top: 10px;
+    padding: 10px 14px;
+    background: rgba(99,97,22,0.05);
+    border-left: 3px solid #636116;
+  }
+  #pdf-render .pdf-vege-alt strong {
+    color: #636116;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-size: 9px;
+    font-family: 'JetBrains Mono', monospace;
+    display: block;
+    margin-bottom: 3px;
+  }
 
   /* Form styles */
   .day-card {
@@ -319,21 +336,53 @@
   </div>
 
   <!-- Week info bar -->
-  <div class="bg-white rounded-xl border border-outline-variant/40 p-5 md:p-6 mb-8 flex items-center justify-between flex-wrap gap-4">
-    <div>
-      <span class="eyebrow text-tertiary mb-1 block">Týden</span>
-      <input type="text" id="week-label" class="font-headline text-xl text-primary bg-transparent border-0 focus:outline-0 focus:bg-primary/5 rounded px-2 -ml-2 py-1" placeholder="21.–25. dubna 2025" value="21.–25. dubna 2025"/>
+  <div class="bg-white rounded-xl border border-outline-variant/40 p-5 md:p-6 mb-8">
+    <div class="flex items-start justify-between flex-wrap gap-4 mb-4">
+      <div>
+        <span class="eyebrow text-tertiary mb-1 block">Týden</span>
+        <div class="font-headline text-xl text-primary" id="week-label-display">21.–25. dubna 2025</div>
+      </div>
+      <div class="flex items-center gap-2 text-xs text-on-surface-variant" id="last-saved-info">
+        <span class="material-symbols-outlined" style="font-size:14px;">schedule</span>
+        <span id="last-saved">Naposledy uloženo: —</span>
+      </div>
     </div>
-    <div class="flex items-center gap-2 text-xs text-on-surface-variant" id="last-saved-info">
-      <span class="material-symbols-outlined" style="font-size:14px;">schedule</span>
-      <span id="last-saved">Naposledy uloženo: —</span>
+    <div class="flex items-end flex-wrap gap-4 pt-4 border-t border-outline-variant/30">
+      <div>
+        <label for="week-start" class="field-label block mb-1">Pondělí</label>
+        <input type="date" id="week-start" class="bg-transparent border border-outline-variant rounded-md px-3 py-2 text-sm focus:outline-none focus:border-primary"/>
+      </div>
+      <div>
+        <label for="week-end" class="field-label block mb-1">Pátek</label>
+        <input type="date" id="week-end" class="bg-transparent border border-outline-variant rounded-md px-3 py-2 text-sm focus:outline-none focus:border-primary"/>
+      </div>
+      <div class="flex gap-2">
+        <button type="button" id="btn-this-week" class="btn btn-ghost" style="padding:8px 14px;font-size:13px;">Tento týden</button>
+        <button type="button" id="btn-next-week" class="btn btn-ghost" style="padding:8px 14px;font-size:13px;">Příští týden</button>
+      </div>
     </div>
+    <details class="mt-3">
+      <summary class="text-xs text-on-surface-variant cursor-pointer hover:text-primary">Vlastní popis týdne (pokročilé)</summary>
+      <input type="text" id="week-label" class="mt-2 w-full bg-transparent border border-outline-variant rounded-md px-3 py-2 text-sm focus:outline-none focus:border-primary" placeholder="Automaticky podle dat výše"/>
+      <p class="text-[11px] text-on-surface-variant mt-1 italic">Pokud necháte prázdné, použije se automatický popis (např. „21.–25. dubna 2025").</p>
+    </details>
   </div>
 
   <!-- Days form -->
   <form id="menu-form" class="space-y-4 md:space-y-5">
     <!-- Filled by JS -->
   </form>
+
+  <!-- Fixed items section -->
+  <div class="mt-8 bg-white rounded-xl border border-outline-variant/40 p-5 md:p-6">
+    <div class="flex items-baseline justify-between mb-4 flex-wrap gap-2">
+      <h3 class="font-headline text-lg text-primary">Stálá nabídka po celý týden</h3>
+      <span class="text-xs text-on-surface-variant">Položky, které jsou k dispozici každý den vedle týdenního menu</span>
+    </div>
+    <div id="fixed-items-form" class="space-y-3">
+      <!-- Filled by JS -->
+    </div>
+  </div>
 
   <!-- Extras -->
   <div class="mt-8 bg-white rounded-xl border border-outline-variant/40 p-5 md:p-6 space-y-5">
@@ -347,6 +396,7 @@
     <div>
       <span class="field-label block mb-2">Vegetariánská alternativa</span>
       <textarea id="vegetarian-alternative" class="field" rows="2" placeholder="např. Halloumi sto gril nebo Salát gyros se sýrem Halloumi místo masa">Halloumi sto gril nebo Salát gyros se sýrem Halloumi místo masa</textarea>
+      <p class="text-[11px] text-on-surface-variant mt-1 italic">Zobrazí se na webu i v PDF jako poznámka pod menu.</p>
     </div>
   </div>
 
@@ -374,11 +424,12 @@
   <details class="mt-12 bg-white rounded-xl border border-outline-variant/40 p-5 md:p-6">
     <summary class="cursor-pointer font-headline text-lg text-primary">Jak to funguje?</summary>
     <div class="mt-4 space-y-3 text-sm text-on-surface-variant">
-      <p>1. <strong>Vyplníte 5 řádků</strong> — pro každý pracovní den jméno jídla, krátký popis a cenu.</p>
-      <p>2. <strong>Kliknete „Uložit a publikovat"</strong> — data se uloží a hlavní web se okamžitě aktualizuje.</p>
-      <p>3. <strong>Stáhnete PDF</strong> — vygeneruje se hezky naformátovaný jídelní lístek, který můžete vytisknout nebo poslat.</p>
-      <p>4. <strong>Příští neděli to celé zopakujete</strong> — formulář si pamatuje minulý týden, jen přepíšete jídla.</p>
-      <p class="text-xs italic pt-2">Tip: Cena je u všech položek 179 Kč podle vaší současné stálé struktury. Pokud byste chtěla pro některý den jinou cenu, klidně ji přepíšete.</p>
+      <p>1. <strong>Vyberte týden</strong> — kliknutím na „Tento týden" nebo „Příští týden" se data automaticky vyplní (pondělí–pátek). Můžete je i ručně upravit.</p>
+      <p>2. <strong>Vyplňte 5 řádků</strong> — pro každý pracovní den jméno jídla, krátký popis a cenu.</p>
+      <p>3. <strong>Stálá nabídka po celý týden</strong> — 4 položky, které jsou k dispozici každý den vedle týdenního menu (cenu i popis můžete kdykoli změnit).</p>
+      <p>4. <strong>Kliknete „Uložit a publikovat"</strong> — data se uloží a hlavní web se okamžitě aktualizuje.</p>
+      <p>5. <strong>Stáhnete PDF</strong> — vygeneruje se hezky naformátovaný jídelní lístek, který můžete vytisknout nebo poslat.</p>
+      <p>6. <strong>Příští neděli to celé zopakujete</strong> — formulář si pamatuje minulý týden, jen přepíšete jídla a posunete týden.</p>
     </div>
   </details>
 </main>
@@ -408,6 +459,10 @@
     </div>
 
     <div class="pdf-soup" id="pdf-soup">Polévka v ceně menu (dle nabídky).</div>
+    <div class="pdf-vege-alt" id="pdf-vege-alt" style="display:none;">
+      <strong>Vegetariánská alternativa</strong>
+      <span id="pdf-vege-alt-text"></span>
+    </div>
 
     <div class="pdf-footer">
       <div>kousekreckanataliri.cz · Anenská 4, Brno</div>
@@ -425,7 +480,7 @@
 <script>
 const STORAGE_KEY = 'krnt-weekly-menu';
 const DEFAULT_DATA = {
-  week: { year: 2025, number: 17, label: '21.–25. dubna 2025' },
+  week: { year: 2025, number: 17, label: '21.–25. dubna 2025', startDate: null, endDate: null, customLabel: '' },
   updatedAt: null,
   soupIncluded: true,
   vegetarianAlternative: 'Halloumi sto gril nebo Salát gyros se sýrem Halloumi místo masa',
@@ -462,9 +517,88 @@ async function init() {
   updateLastSavedDisplay(data.updatedAt);
 }
 
+const MONTHS_CS = ['ledna','února','března','dubna','května','června','července','srpna','září','října','listopadu','prosince'];
+const MONTHS_CS_NOM = ['leden','únor','březen','duben','květen','červen','červenec','srpen','září','říjen','listopad','prosinec'];
+
+function pad2(n) { return n < 10 ? '0' + n : '' + n; }
+function toIsoDate(d) {
+  return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate());
+}
+function parseIsoDate(s) {
+  if (!s) return null;
+  const [y, m, d] = s.split('-').map(Number);
+  return new Date(y, m - 1, d);
+}
+function getMondayOf(date) {
+  const d = new Date(date);
+  const day = d.getDay() || 7; // Ne=0 → 7
+  d.setDate(d.getDate() - (day - 1));
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
+function addDays(date, n) {
+  const d = new Date(date);
+  d.setDate(d.getDate() + n);
+  return d;
+}
+function formatWeekLabel(startDate, endDate) {
+  if (!startDate || !endDate) return '';
+  const sDay = startDate.getDate();
+  const eDay = endDate.getDate();
+  const sMonth = startDate.getMonth();
+  const eMonth = endDate.getMonth();
+  const sYear = startDate.getFullYear();
+  const eYear = endDate.getFullYear();
+  if (sMonth === eMonth && sYear === eYear) {
+    return `${sDay}.–${eDay}. ${MONTHS_CS[eMonth]} ${eYear}`;
+  }
+  if (sYear === eYear) {
+    return `${sDay}. ${MONTHS_CS[sMonth]} – ${eDay}. ${MONTHS_CS[eMonth]} ${eYear}`;
+  }
+  return `${sDay}. ${MONTHS_CS[sMonth]} ${sYear} – ${eDay}. ${MONTHS_CS[eMonth]} ${eYear}`;
+}
+function getIsoWeekNumber(d) {
+  d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+  d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+  return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+}
+
+function refreshWeekLabelDisplay() {
+  const startEl = document.getElementById('week-start');
+  const endEl = document.getElementById('week-end');
+  const customEl = document.getElementById('week-label');
+  const display = document.getElementById('week-label-display');
+  const startDate = parseIsoDate(startEl.value);
+  const endDate = parseIsoDate(endEl.value);
+  const auto = formatWeekLabel(startDate, endDate);
+  const custom = (customEl.value || '').trim();
+  display.textContent = custom || auto || '—';
+}
+
+function setWeekDates(monday) {
+  const friday = addDays(monday, 4);
+  document.getElementById('week-start').value = toIsoDate(monday);
+  document.getElementById('week-end').value = toIsoDate(friday);
+  refreshWeekLabelDisplay();
+}
+
 function populateForm(data) {
-  // Week label
-  document.getElementById('week-label').value = data.week?.label || '';
+  // Week
+  const customLabelEl = document.getElementById('week-label');
+  customLabelEl.value = data.week?.customLabel || '';
+
+  // Set dates: prefer stored ISO dates, fallback to current week
+  const storedStart = data.week?.startDate ? parseIsoDate(data.week.startDate) : null;
+  const storedEnd = data.week?.endDate ? parseIsoDate(data.week.endDate) : null;
+  if (storedStart && storedEnd) {
+    document.getElementById('week-start').value = toIsoDate(storedStart);
+    document.getElementById('week-end').value = toIsoDate(storedEnd);
+  } else {
+    setWeekDates(getMondayOf(new Date()));
+  }
+  refreshWeekLabelDisplay();
+
   document.getElementById('soup-included').checked = !!data.soupIncluded;
   document.getElementById('vegetarian-alternative').value = data.vegetarianAlternative || '';
 
@@ -502,6 +636,33 @@ function populateForm(data) {
     `;
     form.appendChild(card);
   });
+
+  // Fixed items (fallback na default pokud data nemají)
+  const fixedForm = document.getElementById('fixed-items-form');
+  fixedForm.innerHTML = '';
+  const fixedToRender = (data.fixedItems && data.fixedItems.length) ? data.fixedItems : DEFAULT_DATA.fixedItems;
+  fixedToRender.forEach((it, i) => {
+    const row = document.createElement('div');
+    row.className = 'border border-outline-variant/40 rounded-lg p-4';
+    row.dataset.index = i;
+    row.innerHTML = `
+      <div class="grid md:grid-cols-[1fr_1fr_120px] gap-4 items-start">
+        <div>
+          <span class="field-label block mb-1">Název</span>
+          <input type="text" data-field="name" class="field font-headline text-primary" value="${escapeHtml(it.name)}"/>
+        </div>
+        <div>
+          <span class="field-label block mb-1">Popis</span>
+          <input type="text" data-field="description" class="field text-sm" value="${escapeHtml(it.description)}"/>
+        </div>
+        <div>
+          <span class="field-label block mb-1">Cena (Kč)</span>
+          <input type="number" data-field="price" class="field text-secondary font-bold" value="${it.price}"/>
+        </div>
+      </div>
+    `;
+    fixedForm.appendChild(row);
+  });
 }
 
 function escapeHtml(s) {
@@ -526,25 +687,38 @@ function gatherData() {
       vegetarian: card.querySelector('[data-field="vegetarian"]').checked
     });
   });
+
+  const fixedItems = [];
+  document.querySelectorAll('#fixed-items-form > div').forEach(row => {
+    fixedItems.push({
+      name: row.querySelector('[data-field="name"]').value.trim(),
+      description: row.querySelector('[data-field="description"]').value.trim(),
+      price: parseInt(row.querySelector('[data-field="price"]').value) || 179
+    });
+  });
+
+  const startStr = document.getElementById('week-start').value;
+  const endStr = document.getElementById('week-end').value;
+  const startDate = parseIsoDate(startStr);
+  const endDate = parseIsoDate(endStr);
+  const customLabel = document.getElementById('week-label').value.trim();
+  const autoLabel = formatWeekLabel(startDate, endDate);
+
   return {
     week: {
-      year: new Date().getFullYear(),
-      number: getWeekNumber(new Date()),
-      label: document.getElementById('week-label').value.trim()
+      year: endDate ? endDate.getFullYear() : new Date().getFullYear(),
+      number: endDate ? getIsoWeekNumber(endDate) : getIsoWeekNumber(new Date()),
+      startDate: startStr,
+      endDate: endStr,
+      label: customLabel || autoLabel,
+      customLabel: customLabel
     },
     updatedAt: new Date().toISOString(),
     soupIncluded: document.getElementById('soup-included').checked,
     vegetarianAlternative: document.getElementById('vegetarian-alternative').value.trim(),
     days,
-    fixedItems: DEFAULT_DATA.fixedItems
+    fixedItems
   };
-}
-
-function getWeekNumber(d) {
-  d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
-  d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
-  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
-  return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
 }
 
 function updateLastSavedDisplay(iso) {
@@ -563,6 +737,22 @@ function showToast(message, type = 'success') {
   setTimeout(() => toast.classList.add('show'), 10);
   setTimeout(() => toast.classList.remove('show'), 3000);
 }
+
+// Date picker events
+document.getElementById('week-start').addEventListener('change', (e) => {
+  // Pokud user vybere libovolný den, posuneme na pondělí toho týdne a auto-fill pátek
+  const picked = parseIsoDate(e.target.value);
+  if (!picked) { refreshWeekLabelDisplay(); return; }
+  setWeekDates(getMondayOf(picked));
+});
+document.getElementById('week-end').addEventListener('change', refreshWeekLabelDisplay);
+document.getElementById('week-label').addEventListener('input', refreshWeekLabelDisplay);
+document.getElementById('btn-this-week').addEventListener('click', () => {
+  setWeekDates(getMondayOf(new Date()));
+});
+document.getElementById('btn-next-week').addEventListener('click', () => {
+  setWeekDates(addDays(getMondayOf(new Date()), 7));
+});
 
 // SAVE
 document.getElementById('save-btn').addEventListener('click', () => {
@@ -621,7 +811,13 @@ document.getElementById('download-pdf-btn').addEventListener('click', async () =
     const imgHeight = (canvas.height * imgWidth) / canvas.width;
     pdf.addImage(canvas.toDataURL('image/jpeg', 0.95), 'JPEG', 0, 0, imgWidth, imgHeight);
 
-    const filename = `denni-menu-${data.week.label.replace(/\s+/g, '-').replace(/\./g, '')}.pdf`;
+    const safeLabel = (data.week.label || 'menu')
+      .replace(/–/g, '-')
+      .replace(/\./g, '')
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-')
+      .replace(/^-|-$/g, '');
+    const filename = `denni-menu-${safeLabel}.pdf`;
     pdf.save(filename);
 
     showToast('PDF staženo');
@@ -639,6 +835,16 @@ function renderPdfPreview(data) {
   document.getElementById('pdf-soup').textContent = data.soupIncluded
     ? 'Polévka v ceně menu (dle nabídky).'
     : 'Polévka samostatně k objednání.';
+
+  // Vegetariánská alternativa
+  const vegeBox = document.getElementById('pdf-vege-alt');
+  const vegeText = (data.vegetarianAlternative || '').trim();
+  if (vegeText) {
+    document.getElementById('pdf-vege-alt-text').textContent = vegeText;
+    vegeBox.style.display = 'block';
+  } else {
+    vegeBox.style.display = 'none';
+  }
 
   // Days
   const daysContainer = document.getElementById('pdf-days');
