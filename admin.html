@@ -124,16 +124,17 @@
     font-style: normal;
     margin: 0 8px;
   }
+  /* Týdenní menu — flexbox místo gridu (html2canvas si s gridem nerozumí) */
   #pdf-render .pdf-day {
-    display: grid;
-    grid-template-columns: 100px minmax(0, 1fr) 90px;
-    column-gap: 22px;
+    display: flex;
+    align-items: center;
     padding: 16px 0;
     border-bottom: 1px solid #e1e3e4;
-    align-items: start;
   }
-  #pdf-render .pdf-day > div { min-width: 0; }
   #pdf-render .pdf-day:last-of-type { border-bottom: 0; }
+  #pdf-render .pdf-day > div:nth-child(1) { width: 100px; flex-shrink: 0; }
+  #pdf-render .pdf-day > div:nth-child(2) { flex: 1; padding: 0 22px; min-width: 0; }
+  #pdf-render .pdf-day > div:nth-child(3) { width: 90px; flex-shrink: 0; text-align: right; }
   #pdf-render .pdf-day-label {
     font-family: 'Noto Serif', serif;
     font-size: 18px;
@@ -147,10 +148,8 @@
     margin-top: 6px;
     line-height: 1.6;
     padding-bottom: 2px;
-    /* každý popis přesně 1 řádek, přetečení → "..." */
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    /* dlouhé popisy se přirozeně zalomí, žádné ořezávání */
+    white-space: normal;
   }
   #pdf-render .pdf-price {
     text-align: right;
@@ -195,15 +194,15 @@
     margin: 0 0 16px;
     text-align: center;
   }
+  /* Stálá nabídka — flexbox místo gridu */
   #pdf-render .pdf-fixed-row {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) 90px;
-    column-gap: 22px;
+    display: flex;
+    align-items: center;
     padding: 12px 0;
     border-bottom: 1px dotted #c0c7d0;
-    align-items: start;
   }
-  #pdf-render .pdf-fixed-row > div { min-width: 0; }
+  #pdf-render .pdf-fixed-row > div:nth-child(1) { flex: 1; padding-right: 22px; min-width: 0; }
+  #pdf-render .pdf-fixed-row > div:nth-child(2) { width: 90px; flex-shrink: 0; text-align: right; }
   #pdf-render .pdf-fixed-row:last-child { border-bottom: 0; }
   #pdf-render .pdf-fixed-name {
     font-family: 'Noto Serif', serif;
@@ -217,10 +216,8 @@
     margin-top: 3px;
     line-height: 1.6;
     padding-bottom: 2px;
-    /* každý popis přesně 1 řádek, přetečení → "..." */
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    /* dlouhé popisy se přirozeně zalomí, žádné ořezávání */
+    white-space: normal;
   }
   #pdf-render .pdf-footer {
     margin-top: 24px;
