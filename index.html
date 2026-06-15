@@ -852,25 +852,42 @@
       <div class="absolute inset-0 bg-gradient-to-r from-primary/80 via-primary/40 to-transparent"></div>
     </div>
     <div class="relative z-10 max-w-7xl mx-auto px-6 md:px-8 w-full">
-      <div class="max-w-2xl">
-        <span class="inline-block uppercase tracking-[0.2em] text-tertiary-fixed mb-4 font-bold text-xs md:text-sm">Od roku 2016 · Brno, Anenská 4</span>
-        <h1 class="text-5xl md:text-7xl lg:text-8xl font-serif text-white leading-tight tracking-tight mb-6 md:mb-8">
-          Kus Řecka<br>
-          <span class="italic">na vašem talíři.</span>
-        </h1>
-        <div class="relative inline-block mb-8 md:mb-10 max-w-lg">
-          <span class="draft-mark absolute" style="top:-12px;right:-12px;background:rgba(255,248,236,0.95);">Návrh textu</span>
-          <p class="text-base md:text-xl text-white/90 leading-relaxed">
-            Recepty, které mě naučila manželova babička v malém městečku Sindos kousek od Soluně. Dvaadvacet let v Řecku, v Brně vaříme už devátý rok.
-          </p>
+      <div class="md:flex md:items-center md:gap-10 md:justify-between">
+        <div class="max-w-2xl">
+          <span class="inline-block uppercase tracking-[0.2em] text-tertiary-fixed mb-4 font-bold text-xs md:text-sm">Od roku 2016 · Brno, Anenská 4</span>
+          <h1 class="text-5xl md:text-7xl lg:text-8xl font-serif text-white leading-tight tracking-tight mb-6 md:mb-8">
+            Kus Řecka<br>
+            <span class="italic">na vašem talíři.</span>
+          </h1>
+          <div class="relative inline-block mb-8 md:mb-10 max-w-lg">
+            <span class="draft-mark absolute" style="top:-12px;right:-12px;background:rgba(255,248,236,0.95);">Návrh textu</span>
+            <p class="text-base md:text-xl text-white/90 leading-relaxed">
+              Recepty, které mě naučila manželova babička v malém městečku Sindos kousek od Soluně. Dvaadvacet let v Řecku, v Brně vaříme už devátý rok.
+            </p>
+          </div>
+          <div class="flex flex-wrap gap-4">
+            <button onclick="go('menu')" class="bg-secondary text-on-secondary px-6 md:px-8 py-3 md:py-4 rounded-full font-bold text-sm md:text-base hover:bg-on-secondary-fixed-variant transition-all shadow-lg hover:-translate-y-1">
+              Podívat se na menu
+            </button>
+            <button onclick="go('reserve')" class="bg-white/10 backdrop-blur-md border border-white/25 text-white px-6 md:px-8 py-3 md:py-4 rounded-full font-bold text-sm md:text-base hover:bg-white/20 transition-all">
+              Rezervovat stůl
+            </button>
+          </div>
         </div>
-        <div class="flex flex-wrap gap-4">
-          <button onclick="go('menu')" class="bg-secondary text-on-secondary px-6 md:px-8 py-3 md:py-4 rounded-full font-bold text-sm md:text-base hover:bg-on-secondary-fixed-variant transition-all shadow-lg hover:-translate-y-1">
-            Podívat se na menu
-          </button>
-          <button onclick="go('reserve')" class="bg-white/10 backdrop-blur-md border border-white/25 text-white px-6 md:px-8 py-3 md:py-4 rounded-full font-bold text-sm md:text-base hover:bg-white/20 transition-all">
-            Rezervovat stůl
-          </button>
+
+        <!-- Speciální nabídka (volitelná, řízená z admina) -->
+        <div id="special-offer-card" class="mt-10 md:mt-0 md:max-w-xs lg:max-w-sm md:flex-shrink-0" style="display: none;">
+          <div class="bg-white/95 backdrop-blur-md p-6 md:p-8 rounded-2xl shadow-2xl border-2 border-tertiary-fixed relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-24 h-24 bg-tertiary-fixed/40 rounded-bl-full"></div>
+            <div class="relative">
+              <div class="flex items-center gap-2 mb-4">
+                <span class="material-symbols-outlined text-secondary" style="font-size:22px;">local_fire_department</span>
+                <span class="text-xs font-mono uppercase tracking-[0.2em] text-tertiary font-bold">Aktuálně u&nbsp;nás</span>
+              </div>
+              <h3 id="special-offer-title" class="text-2xl md:text-3xl font-serif text-primary mb-3 leading-tight">Speciální nabídka</h3>
+              <p id="special-offer-description" class="text-sm md:text-base text-on-surface-variant leading-relaxed">Popis specialitky.</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -2003,6 +2020,25 @@ async function loadWeeklyMenu() {
   badge.innerHTML = 'Dnes vaříme · ' + DAY_NAMES[todayWeekday];
   name.textContent = 'Polední menu';
   desc.innerHTML = 'Aktuální polední menu najdete u&nbsp;vchodu nebo se zeptejte obsluhy.';
+})();
+
+// Speciální nabídka v hero (řízená z admina)
+(async function() {
+  const card = document.getElementById('special-offer-card');
+  if (!card) return;
+  const titleEl = document.getElementById('special-offer-title');
+  const descEl = document.getElementById('special-offer-description');
+
+  const data = await loadWeeklyMenu();
+  const offer = (data && data.specialOffer) || null;
+
+  if (offer && offer.enabled && (offer.title || offer.description)) {
+    if (titleEl && offer.title) titleEl.textContent = offer.title;
+    if (descEl && offer.description) descEl.textContent = offer.description;
+    card.style.display = '';
+  } else {
+    card.style.display = 'none';
+  }
 })();
 
 // Render Týdenní menu panel (called when navigating to /menu-weekly)

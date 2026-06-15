@@ -6,6 +6,11 @@
   },
   "updatedAt": "2025-04-21T08:00:00Z",
   "soupIncluded": true,
+  "specialOffer": {
+    "enabled": false,
+    "title": "",
+    "description": ""
+  },
   "days": [
     {
       "weekday": 1,

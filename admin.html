@@ -435,6 +435,29 @@
     </label>
   </div>
 
+  <!-- Speciální nabídka -->
+  <div class="mt-8 bg-white rounded-xl border border-outline-variant/40 p-5 md:p-6 space-y-5">
+    <div>
+      <h3 class="font-headline text-lg text-primary">Speciální nabídka na hlavní stránce</h3>
+      <p class="text-xs text-on-surface-variant mt-1">Volitelný blok vpravo nahoře v úvodu — např. „Velikonoční jehně", „Letní speciality". Když není zaškrtnuto, na webu se nezobrazí.</p>
+    </div>
+
+    <label class="flex items-center gap-3 cursor-pointer">
+      <input type="checkbox" id="special-offer-enabled" class="w-5 h-5 rounded text-primary focus:ring-primary"/>
+      <span class="text-sm font-medium">Zobrazit speciální nabídku na webu</span>
+    </label>
+
+    <div>
+      <span class="field-label block mb-1">Nadpis</span>
+      <input type="text" id="special-offer-title-input" class="field" placeholder="např. Velikonoční jehně"/>
+    </div>
+
+    <div>
+      <span class="field-label block mb-1">Popis</span>
+      <textarea id="special-offer-description-input" class="field" rows="2" placeholder="např. Pečené 10 hodin v bylinkové kůrce, podáváme do soboty."></textarea>
+    </div>
+  </div>
+
   <!-- Action buttons -->
   <div class="mt-8 md:mt-10 flex flex-wrap gap-3 items-center sticky bottom-4 bg-surface-container-low/90 backdrop-blur p-3 rounded-xl border border-outline-variant/30 shadow-sm z-20">
     <button type="button" id="save-btn" class="btn btn-primary">
@@ -515,6 +538,7 @@ const DEFAULT_DATA = {
   week: { year: 2025, number: 17, label: '21.–25. dubna 2025', startDate: null, endDate: null, customLabel: '' },
   updatedAt: null,
   soupIncluded: true,
+  specialOffer: { enabled: false, title: '', description: '' },
   days: [
     { weekday: 1, name: 'Pondělí', dish: 'Halloumi sto gril', description: 'Grilovaný sýr Halloumi, naše hranolky a salátek.', price: 179, vegetarian: true },
     { weekday: 2, name: 'Úterý', dish: 'Mousaka', description: 'Lilek, mleté maso, brambory zapečené bešamelem, salátek.', price: 179, vegetarian: false },
@@ -679,6 +703,15 @@ function populateForm(data) {
 
   document.getElementById('soup-included').checked = !!data.soupIncluded;
 
+  // Speciální nabídka
+  const so = data.specialOffer || {};
+  const soEnabled = document.getElementById('special-offer-enabled');
+  const soTitle = document.getElementById('special-offer-title-input');
+  const soDesc = document.getElementById('special-offer-description-input');
+  if (soEnabled) soEnabled.checked = !!so.enabled;
+  if (soTitle) soTitle.value = so.title || '';
+  if (soDesc) soDesc.value = so.description || '';
+
   // Days
   const form = document.getElementById('menu-form');
   form.innerHTML = '';
@@ -805,6 +838,11 @@ function gatherData() {
     },
     updatedAt: new Date().toISOString(),
     soupIncluded: document.getElementById('soup-included').checked,
+    specialOffer: {
+      enabled:     !!document.getElementById('special-offer-enabled')?.checked,
+      title:       (document.getElementById('special-offer-title-input')?.value || '').trim(),
+      description: (document.getElementById('special-offer-description-input')?.value || '').trim(),
+    },
     days,
     fixedItems
   };
