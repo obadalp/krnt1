@@ -878,25 +878,28 @@
         <!-- Speciální nabídka (volitelná, řízená z admina) — tavernský pergamen -->
         <div id="special-offer-card" class="mt-10 md:mt-0 md:max-w-[340px] lg:max-w-[380px] md:flex-shrink-0 relative" style="display: none;">
           <!-- Vintage "tape" cedulka nahoře -->
-          <div class="absolute -top-3 left-8 z-20" style="transform: rotate(-4deg);">
+          <div class="absolute -top-3 left-8 z-20">
             <div class="bg-secondary text-on-secondary px-3 py-1.5 text-[10px] uppercase tracking-[0.25em] font-bold shadow-lg" style="font-family: 'JetBrains Mono', ui-monospace, monospace;">
               Tento&nbsp;týden
             </div>
           </div>
 
-          <!-- Pergamenová karta s mírným pootočením -->
-          <div class="relative bg-gradient-to-br from-[#fff8ec] to-[#f5e6c2] shadow-2xl p-7 md:p-8 border border-[#c4a673]/40 overflow-hidden" style="border-radius: 3px; transform: rotate(1.5deg);">
+          <!-- Pergamenová karta -->
+          <div class="relative bg-gradient-to-br from-[#fff8ec] to-[#f5e6c2] shadow-2xl border border-[#c4a673]/40 overflow-hidden"
+               style="border-radius: 3px; padding: 32px 28px 28px;">
             <!-- Terakotový pruh nahoře -->
             <div class="absolute top-0 left-0 right-0 h-1.5 bg-secondary"></div>
 
             <!-- Eyebrow s ikonkou -->
-            <div class="flex items-center gap-2 mb-4 pt-2">
+            <div class="flex items-center gap-2 mb-4">
               <span class="material-symbols-outlined text-secondary" style="font-size:16px;">restaurant_menu</span>
               <span class="text-[10px] uppercase tracking-[0.22em] text-tertiary font-bold" style="font-family: 'JetBrains Mono', ui-monospace, monospace;">Aktuálně u&nbsp;nás</span>
             </div>
 
-            <!-- Italic serif nadpis (echo „na vašem talíři" z hero) -->
-            <h3 id="special-offer-title" class="text-3xl md:text-[2.25rem] font-serif italic text-primary leading-[1.05] mb-3">
+            <!-- Italic serif nadpis -->
+            <h3 id="special-offer-title"
+                class="text-3xl md:text-[2rem] font-serif italic text-primary leading-[1.1] mb-3"
+                style="overflow-wrap: break-word; word-wrap: break-word; hyphens: auto; max-height: 5.5em; overflow: hidden;">
               Speciální nabídka
             </h3>
 
@@ -908,7 +911,9 @@
             </div>
 
             <!-- Popis -->
-            <p id="special-offer-description" class="text-sm md:text-base leading-relaxed" style="color:#5a4a2c;">
+            <p id="special-offer-description"
+               class="text-sm md:text-base leading-relaxed"
+               style="color:#5a4a2c; overflow-wrap: break-word; word-wrap: break-word; hyphens: auto; max-height: 6em; overflow: hidden;">
               Popis specialitky.
             </p>
           </div>
