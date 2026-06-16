@@ -999,15 +999,33 @@
         <h2 class="text-4xl md:text-5xl font-serif text-primary">Z&nbsp;našeho menu</h2>
       </div>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 auto-rows-fr">
-        <!-- Daily menu feature -->
-        <div class="md:col-span-2 bg-primary text-on-primary rounded-lg overflow-hidden flex flex-col h-full">
-          <div class="aspect-[16/9] overflow-hidden relative shrink-0">
-            <img alt="Denní menu" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA-MFEB6oKP30McFNClrOxKN9O9xfh8Zds4paHmiTzbrUhgCeMQyoFsfAbN1kq8MzP32zGY_lYPQMuTeuQ4MRBuNXumpROYYVdw9XtK_wuEy4ucwztZNpCO8cYjQw9vQueM7UXH2bI-Q3Mxivh9qlMbAxo54Fj4QAdetIltgRjYAzKrMESM6BrLmFYjERQ1cKRIGcZfQA7koO4_mjgJ-UiuadLE6G2Fw2tmI4RAauYipi0Ys7JUh4znqwZSHYIvTRWwY7vgVxuSwP89"/>
-          </div>
-          <div class="p-6 md:p-8 flex flex-col flex-grow">
-            <span id="daily-badge" class="bg-tertiary-fixed text-on-tertiary-fixed text-xs font-bold px-3 py-1 rounded-full uppercase mb-3 inline-block self-start">Dnes · úterý</span>
-            <h3 id="daily-name" class="text-2xl md:text-3xl font-serif mb-2">Mousaka</h3>
-            <p id="daily-desc" class="text-on-primary/85 text-sm md:text-base">Lilek, mleté maso, brambory zapečené bešamelem. V&nbsp;poledním menu za&nbsp;179&nbsp;Kč včetně polévky.</p>
+        <!-- Daily menu feature — text-only, žádná fotka (mění se každý den) -->
+        <div class="md:col-span-2 bg-primary text-on-primary rounded-lg overflow-hidden flex flex-col h-full relative">
+          <!-- Subtle meander pattern přes pozadí -->
+          <div class="absolute inset-0 meander-pattern opacity-30 pointer-events-none"></div>
+          <!-- Decorativní pruh nahoře -->
+          <div class="absolute top-0 left-0 right-0 h-1.5 bg-secondary"></div>
+
+          <div class="relative p-8 md:p-12 flex flex-col flex-grow min-h-[420px] justify-between">
+            <!-- Vrchní část — eyebrow + badge -->
+            <div>
+              <div class="flex items-center gap-2 mb-5">
+                <span class="material-symbols-outlined text-tertiary-fixed" style="font-size:18px;">restaurant_menu</span>
+                <span class="eyebrow-mono" style="color:#ebe68d;">Polední menu · 179 Kč</span>
+              </div>
+              <span id="daily-badge" class="bg-tertiary-fixed text-on-tertiary-fixed text-xs font-bold px-3 py-1 rounded-full uppercase inline-block">Dnes · úterý</span>
+            </div>
+
+            <!-- Střední část — velký italic dish name -->
+            <div class="my-6 md:my-8">
+              <h3 id="daily-name" class="text-4xl md:text-5xl lg:text-6xl font-serif italic leading-[1.05] mb-4">Mousaka</h3>
+              <div class="w-16 h-px bg-tertiary-fixed"></div>
+            </div>
+
+            <!-- Spodní část — popis -->
+            <p id="daily-desc" class="text-on-primary/85 text-sm md:text-base leading-relaxed max-w-xl">
+              Lilek, mleté maso, brambory zapečené bešamelem. V&nbsp;poledním menu za&nbsp;179&nbsp;Kč včetně polévky.
+            </p>
           </div>
         </div>
 
