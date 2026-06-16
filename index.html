@@ -991,50 +991,58 @@
     </div>
   </section>
 
-  <!-- Chef's Specials -->
-  <section class="py-20 md:py-32 px-6 md:px-8 bg-surface">
+  <!-- Daily menu banner — samostatný horizontální blok bez fotky -->
+  <section class="py-12 md:py-16 px-6 md:px-8 bg-surface">
     <div class="max-w-7xl mx-auto">
-      <div class="mb-10 md:mb-16">
-        <label class="eyebrow-mono block mb-4">Co dnes vaříme</label>
-        <h2 class="text-4xl md:text-5xl font-serif text-primary">Z&nbsp;našeho menu</h2>
-      </div>
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 auto-rows-fr">
-        <!-- Daily menu feature — text-only, žádná fotka (mění se každý den) -->
-        <div class="md:col-span-2 md:self-start bg-primary text-on-primary rounded-lg overflow-hidden relative">
-          <!-- Subtle meander pattern přes pozadí -->
-          <div class="absolute inset-0 meander-pattern opacity-30 pointer-events-none"></div>
-          <!-- Decorativní pruh nahoře -->
-          <div class="absolute top-0 left-0 right-0 h-1.5 bg-secondary"></div>
+      <div class="bg-primary text-on-primary rounded-lg overflow-hidden relative">
+        <!-- Meander pattern přes pozadí -->
+        <div class="absolute inset-0 meander-pattern opacity-30 pointer-events-none"></div>
+        <!-- Decorativní pruh nahoře -->
+        <div class="absolute top-0 left-0 right-0 h-1.5 bg-secondary"></div>
 
-          <div class="relative p-6 md:p-7 flex flex-col gap-4">
-            <!-- Eyebrow — dynamický podle dne (ÚTERNÍ POLEDNÍ MENU · 179 KČ) -->
-            <div class="flex items-center gap-2">
-              <span class="material-symbols-outlined text-tertiary-fixed" style="font-size:18px;">restaurant_menu</span>
-              <span id="daily-eyebrow" class="eyebrow-mono" style="color:#ebe68d;">Úterní polední menu · 179 Kč</span>
+        <div class="relative p-6 md:p-8 flex flex-col gap-4">
+          <!-- Eyebrow — dynamický podle dne -->
+          <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-tertiary-fixed" style="font-size:18px;">restaurant_menu</span>
+            <span id="daily-eyebrow" class="eyebrow-mono" style="color:#ebe68d;">Úterní polední menu · 179 Kč</span>
+          </div>
+
+          <!-- Italic dish name + popis -->
+          <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-3 md:gap-8">
+            <div class="md:flex-1">
+              <h3 id="daily-name" class="text-3xl md:text-4xl lg:text-5xl font-serif italic leading-[1.05] mb-2">Mousaka</h3>
+              <div class="w-12 h-px bg-tertiary-fixed mb-3"></div>
+              <p id="daily-desc" class="text-on-primary/85 text-sm md:text-base leading-relaxed max-w-2xl">
+                Lilek, mleté maso, brambory zapečené bešamelem. V&nbsp;poledním menu za&nbsp;179&nbsp;Kč včetně polévky.
+              </p>
             </div>
-
-            <!-- Italic dish name -->
-            <div>
-              <h3 id="daily-name" class="text-3xl md:text-4xl font-serif italic leading-[1.05] mb-2">Mousaka</h3>
-              <div class="w-12 h-px bg-tertiary-fixed"></div>
-            </div>
-
-            <!-- Popis -->
-            <p id="daily-desc" class="text-on-primary/85 text-sm md:text-base leading-relaxed max-w-xl">
-              Lilek, mleté maso, brambory zapečené bešamelem. V&nbsp;poledním menu za&nbsp;179&nbsp;Kč včetně polévky.
-            </p>
+            <button onclick="go('menu-weekly')" class="md:shrink-0 inline-flex items-center gap-2 text-tertiary-fixed font-bold text-sm md:text-base border-b-2 border-tertiary-fixed pb-1 hover:text-white hover:border-white transition-colors self-start md:self-end">
+              Celé týdenní menu
+              <span class="material-symbols-outlined" style="font-size:18px;">arrow_forward</span>
+            </button>
           </div>
         </div>
+      </div>
+    </div>
+  </section>
 
+  <!-- Z našeho menu — 3 stejné photo karty -->
+  <section class="py-20 md:py-28 px-6 md:px-8 bg-surface">
+    <div class="max-w-7xl mx-auto">
+      <div class="mb-10 md:mb-14">
+        <label class="eyebrow-mono block mb-4">Naše signature jídla</label>
+        <h2 class="text-4xl md:text-5xl font-serif text-primary">Co u&nbsp;nás vaříme stálo</h2>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 auto-rows-fr">
         <!-- Gyros prkno -->
         <div class="bg-surface-container-lowest rounded-lg overflow-hidden border border-outline-variant/20 flex flex-col h-full group">
-          <div class="overflow-hidden relative flex-grow min-h-[280px]">
+          <div class="aspect-[4/3] overflow-hidden relative shrink-0">
             <img alt="Gyros" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCgG02JFSkIjmYcAC5M8KFwWknAtgUnqSIHZQR6j6M9jlB6CnZGSYd_sYWYSHBonJbld2YrVamKZGFY24JZcyI2BHt2geF89JQ3G0uiDc8RbQfn1S0JPehzDPiN3Wt9PiJm7f6vG8vQxbnhzW-Oil83I_BBuyO3d86hcj4odBnRXQqloopSeAJTy6NO7dRbLY7LfpO5lqVKJgNLXXIylDrcmmu5reRi8IcUpFRV3xApLYmmibtbJyqUK-6EA_s9CFAAScYeOozocxay"/>
           </div>
-          <div class="p-5 md:p-6 shrink-0">
+          <div class="p-5 md:p-6 flex-grow flex flex-col">
             <div class="flex justify-between items-start mb-2 gap-2">
               <h3 class="text-xl md:text-2xl font-serif text-primary">Gyros prkno</h3>
-              <span class="text-secondary font-bold whitespace-nowrap">229 Kč</span>
+              <span class="text-secondary font-bold whitespace-nowrap">229&nbsp;Kč</span>
             </div>
             <p class="text-on-surface-variant text-sm leading-relaxed">Vepřový, kuřecí nebo mix. Domácí hranolky, rajčata, červená cibule, tzatziki.</p>
           </div>
@@ -1042,30 +1050,32 @@
 
         <!-- Souvlaki mix -->
         <div class="bg-surface-container-lowest rounded-lg overflow-hidden border border-outline-variant/20 flex flex-col h-full group">
-          <div class="overflow-hidden relative flex-grow min-h-[280px]">
+          <div class="aspect-[4/3] overflow-hidden relative shrink-0">
             <img alt="Souvlaki" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC24KwpyHwFKVEYRNy0VDXPnXGQCxLbahrIShOB2i0o-TIwhxi-CTx7J3a6qkcbqTOJVzR_wBqyhOpGNpo4CJnhp9_DrVkZH6lU3yWQ3Mo8NzTwcgRXsLlW5SAEOv75pN7ByrIV-53SkvF7RDfjULKkkgoHzvr90-sIKUxTOyh7y-u_AXJwdl3meLEzps4lxsU1XgLzZmvJzPwwcd1siL3DTAmSkI9aDLEjxTdXbvMCI7FwpE53KU3nmbuZIGyF2fLCHnyNn1Q7l9Pu"/>
           </div>
-          <div class="p-5 md:p-6 shrink-0">
+          <div class="p-5 md:p-6 flex-grow flex flex-col">
             <div class="flex justify-between items-start mb-2 gap-2">
               <h3 class="text-xl md:text-2xl font-serif text-primary">Souvlaki mix</h3>
-              <span class="text-secondary font-bold whitespace-nowrap">249 Kč</span>
+              <span class="text-secondary font-bold whitespace-nowrap">249&nbsp;Kč</span>
             </div>
             <p class="text-on-surface-variant text-sm leading-relaxed">Vepřový a&nbsp;kuřecí špíz se slaninou. Hranolky, tzatziki, salátek.</p>
           </div>
         </div>
 
-        <!-- Markellas Piato feature -->
-        <div class="md:col-span-2 bg-primary text-on-primary rounded-lg overflow-hidden flex flex-col h-full">
-          <div class="aspect-[16/9] overflow-hidden relative shrink-0">
-            <img alt="Markellas Piato" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAS9906_0ZB4UoSY8sl1t8CcHpsKuD-JOvE8gcvtdaSoW85747VAb5SVNJUNwmORtHa3jnwcI5LNvX6bVy7figLABeSSo5YwFDh5xMJo2ivRYUfmD_u1MQDE19iVvHOUJ1tQe4bOUAA0NevokjoNcm5ZBoVr8NcI9oDMP0FS7YrD4pt72v0IrflwqedPJYVN5Zn3t_--UjFp4whYBo0DFIoaLgfwTLKjbDnafhrrPb5jc-HRYkO0PjnPeDU9bESzz76h_4VzuXsIaTK"/>
-          </div>
-          <div class="p-6 md:p-8 flex flex-col flex-grow">
-            <span class="bg-tertiary-fixed text-on-tertiary-fixed text-xs font-bold px-3 py-1 rounded-full uppercase mb-3 inline-block self-start">Doporučujeme</span>
-            <div class="flex justify-between items-baseline gap-3 mb-2">
-              <h3 class="text-2xl md:text-3xl font-serif">Markellas&nbsp;Piato</h3>
-              <span class="text-tertiary-fixed font-bold text-lg whitespace-nowrap">649&nbsp;Kč</span>
+        <!-- Markellas Piato (feature — Doporučujeme, modrá karta) -->
+        <div class="bg-primary text-on-primary rounded-lg overflow-hidden flex flex-col h-full relative group">
+          <div class="aspect-[4/3] overflow-hidden relative shrink-0">
+            <img alt="Markellas Piato" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAS9906_0ZB4UoSY8sl1t8CcHpsKuD-JOvE8gcvtdaSoW85747VAb5SVNJUNwmORtHa3jnwcI5LNvX6bVy7figLABeSSo5YwFDh5xMJo2ivRYUfmD_u1MQDE19iVvHOUJ1tQe4bOUAA0NevokjoNcm5ZBoVr8NcI9oDMP0FS7YrD4pt72v0IrflwqedPJYVN5Zn3t_--UjFp4whYBo0DFIoaLgfwTLKjbDnafhrrPb5jc-HRYkO0PjnPeDU9bESzz76h_4VzuXsIaTK"/>
+            <div class="absolute top-3 left-3 z-10">
+              <span class="bg-tertiary-fixed text-on-tertiary-fixed text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">Doporučujeme</span>
             </div>
-            <p class="text-on-primary/85 text-sm md:text-base">Mix talíř pro víc lidí: choriatiki, gyros, grilovaný halloumi, pita, domácí hranolky, velké tzatziki.</p>
+          </div>
+          <div class="p-5 md:p-6 flex-grow flex flex-col">
+            <div class="flex justify-between items-baseline gap-2 mb-2">
+              <h3 class="text-xl md:text-2xl font-serif">Markellas&nbsp;Piato</h3>
+              <span class="text-tertiary-fixed font-bold whitespace-nowrap">649&nbsp;Kč</span>
+            </div>
+            <p class="text-on-primary/85 text-sm leading-relaxed">Mix talíř pro víc lidí: choriatiki, gyros, halloumi, pita, hranolky, tzatziki.</p>
           </div>
         </div>
       </div>
