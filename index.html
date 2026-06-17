@@ -991,35 +991,44 @@
     </div>
   </section>
 
-  <!-- Z našeho menu — sloučená sekce: dynamický nadpis + stálé menu -->
+  <!-- Z našeho menu — hezký modrý daily blok + stálé menu pod ním -->
   <section class="py-20 md:py-28 px-6 md:px-8 bg-surface">
     <div class="max-w-7xl mx-auto">
 
-      <!-- Hlavní nadpis sekce = dynamický eyebrow podle dne -->
-      <div class="mb-6 md:mb-8 flex items-center gap-3 md:gap-4">
-        <span class="material-symbols-outlined text-secondary" style="font-size:32px;">restaurant_menu</span>
-        <h2 id="daily-eyebrow" class="text-3xl md:text-4xl lg:text-5xl font-serif text-primary leading-tight">
-          Středeční polední menu · 179&nbsp;Kč
-        </h2>
-      </div>
+      <!-- ===== Hezký modrý daily blok (meander pattern + terakotový pruh) ===== -->
+      <div class="bg-primary text-on-primary rounded-lg overflow-hidden relative mb-16 md:mb-20">
+        <!-- Meander pattern přes pozadí -->
+        <div class="absolute inset-0 meander-pattern opacity-30 pointer-events-none"></div>
+        <!-- Decorativní pruh nahoře -->
+        <div class="absolute top-0 left-0 right-0 h-1.5 bg-secondary"></div>
 
-      <!-- Daily dish info — italic dish + popis + odkaz na týdenní menu -->
-      <div class="mb-14 md:mb-20 pl-0 md:pl-[3.5rem]">
-        <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
-          <div class="md:flex-1">
-            <h3 id="daily-name" class="text-2xl md:text-3xl font-serif italic text-primary mb-2 leading-tight">Mousaka</h3>
-            <p id="daily-desc" class="text-on-surface-variant text-sm md:text-base leading-relaxed max-w-2xl">
-              Lilek, mleté maso, brambory zapečené bešamelem. V&nbsp;poledním menu za&nbsp;179&nbsp;Kč včetně polévky.
-            </p>
+        <div class="relative p-6 md:p-8 lg:p-10 flex flex-col gap-5 md:gap-6">
+          <!-- HLAVNÍ NADPIS — dynamický (Středeční polední menu · 179 Kč) -->
+          <div class="flex items-center gap-3 md:gap-4">
+            <span class="material-symbols-outlined text-tertiary-fixed" style="font-size:32px;">restaurant_menu</span>
+            <h3 id="daily-eyebrow" class="text-2xl md:text-3xl lg:text-4xl font-serif leading-tight">
+              Středeční polední menu · 179&nbsp;Kč
+            </h3>
           </div>
-          <button onclick="go('menu-weekly')" class="md:shrink-0 inline-flex items-center gap-2 text-primary font-bold text-sm md:text-base border-b-2 border-primary pb-1 hover:text-secondary hover:border-secondary transition-colors self-start md:self-end">
-            Celé týdenní menu
-            <span class="material-symbols-outlined" style="font-size:18px;">arrow_forward</span>
-          </button>
+
+          <!-- Mousaka + popis + tlačítko -->
+          <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4 md:gap-8">
+            <div class="md:flex-1">
+              <h4 id="daily-name" class="text-3xl md:text-4xl lg:text-5xl font-serif italic leading-[1.05] mb-2 text-tertiary-fixed">Mousaka</h4>
+              <div class="w-12 h-px bg-tertiary-fixed/60 mb-3"></div>
+              <p id="daily-desc" class="text-on-primary/85 text-sm md:text-base leading-relaxed max-w-2xl">
+                Lilek, mleté maso, brambory zapečené bešamelem. V&nbsp;poledním menu za&nbsp;179&nbsp;Kč včetně polévky.
+              </p>
+            </div>
+            <button onclick="go('menu-weekly')" class="md:shrink-0 inline-flex items-center gap-2 text-tertiary-fixed font-bold text-sm md:text-base border-b-2 border-tertiary-fixed pb-1 hover:text-white hover:border-white transition-colors self-start md:self-end">
+              Celé týdenní menu
+              <span class="material-symbols-outlined" style="font-size:18px;">arrow_forward</span>
+            </button>
+          </div>
         </div>
       </div>
 
-      <!-- Stálé menu eyebrow -->
+      <!-- ===== Stálé menu eyebrow ===== -->
       <div class="mb-10 md:mb-12">
         <label class="eyebrow-mono block mb-3">Stálé menu</label>
         <h3 class="text-2xl md:text-3xl lg:text-4xl font-serif text-primary">Co u&nbsp;nás chutná pořád</h3>
