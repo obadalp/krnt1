@@ -991,48 +991,40 @@
     </div>
   </section>
 
-  <!-- Daily menu banner — samostatný horizontální blok bez fotky -->
-  <section class="py-12 md:py-16 px-6 md:px-8 bg-surface">
-    <div class="max-w-7xl mx-auto">
-      <div class="bg-primary text-on-primary rounded-lg overflow-hidden relative">
-        <!-- Meander pattern přes pozadí -->
-        <div class="absolute inset-0 meander-pattern opacity-30 pointer-events-none"></div>
-        <!-- Decorativní pruh nahoře -->
-        <div class="absolute top-0 left-0 right-0 h-1.5 bg-secondary"></div>
-
-        <div class="relative p-6 md:p-8 flex flex-col gap-4">
-          <!-- Eyebrow — dynamický podle dne -->
-          <div class="flex items-center gap-2">
-            <span class="material-symbols-outlined text-tertiary-fixed" style="font-size:18px;">restaurant_menu</span>
-            <span id="daily-eyebrow" class="eyebrow-mono" style="color:#ebe68d;">Úterní polední menu · 179 Kč</span>
-          </div>
-
-          <!-- Italic dish name + popis -->
-          <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-3 md:gap-8">
-            <div class="md:flex-1">
-              <h3 id="daily-name" class="text-3xl md:text-4xl lg:text-5xl font-serif italic leading-[1.05] mb-2">Mousaka</h3>
-              <div class="w-12 h-px bg-tertiary-fixed mb-3"></div>
-              <p id="daily-desc" class="text-on-primary/85 text-sm md:text-base leading-relaxed max-w-2xl">
-                Lilek, mleté maso, brambory zapečené bešamelem. V&nbsp;poledním menu za&nbsp;179&nbsp;Kč včetně polévky.
-              </p>
-            </div>
-            <button onclick="go('menu-weekly')" class="md:shrink-0 inline-flex items-center gap-2 text-tertiary-fixed font-bold text-sm md:text-base border-b-2 border-tertiary-fixed pb-1 hover:text-white hover:border-white transition-colors self-start md:self-end">
-              Celé týdenní menu
-              <span class="material-symbols-outlined" style="font-size:18px;">arrow_forward</span>
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Z našeho menu — 3 stejné photo karty -->
+  <!-- Z našeho menu — sloučená sekce: dynamický nadpis + stálé menu -->
   <section class="py-20 md:py-28 px-6 md:px-8 bg-surface">
     <div class="max-w-7xl mx-auto">
-      <div class="mb-10 md:mb-14">
-        <label class="eyebrow-mono block mb-4">Naše signature jídla</label>
-        <h2 class="text-4xl md:text-5xl font-serif text-primary">Co u&nbsp;nás vaříme stálo</h2>
+
+      <!-- Hlavní nadpis sekce = dynamický eyebrow podle dne -->
+      <div class="mb-6 md:mb-8 flex items-center gap-3 md:gap-4">
+        <span class="material-symbols-outlined text-secondary" style="font-size:32px;">restaurant_menu</span>
+        <h2 id="daily-eyebrow" class="text-3xl md:text-4xl lg:text-5xl font-serif text-primary leading-tight">
+          Středeční polední menu · 179&nbsp;Kč
+        </h2>
       </div>
+
+      <!-- Daily dish info — italic dish + popis + odkaz na týdenní menu -->
+      <div class="mb-14 md:mb-20 pl-0 md:pl-[3.5rem]">
+        <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+          <div class="md:flex-1">
+            <h3 id="daily-name" class="text-2xl md:text-3xl font-serif italic text-primary mb-2 leading-tight">Mousaka</h3>
+            <p id="daily-desc" class="text-on-surface-variant text-sm md:text-base leading-relaxed max-w-2xl">
+              Lilek, mleté maso, brambory zapečené bešamelem. V&nbsp;poledním menu za&nbsp;179&nbsp;Kč včetně polévky.
+            </p>
+          </div>
+          <button onclick="go('menu-weekly')" class="md:shrink-0 inline-flex items-center gap-2 text-primary font-bold text-sm md:text-base border-b-2 border-primary pb-1 hover:text-secondary hover:border-secondary transition-colors self-start md:self-end">
+            Celé týdenní menu
+            <span class="material-symbols-outlined" style="font-size:18px;">arrow_forward</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Stálé menu eyebrow -->
+      <div class="mb-10 md:mb-12">
+        <label class="eyebrow-mono block mb-3">Stálé menu</label>
+        <h3 class="text-2xl md:text-3xl lg:text-4xl font-serif text-primary">Co u&nbsp;nás chutná pořád</h3>
+      </div>
+
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 auto-rows-fr">
         <!-- Gyros prkno -->
         <div class="bg-surface-container-lowest rounded-lg overflow-hidden border border-outline-variant/20 flex flex-col h-full group">
